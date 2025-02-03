@@ -1,3 +1,6 @@
+## Adding API keys to the .env file:
+Replace `addkeyhere` with your actual API keys.
+
 ## Running the application using a venv:
 ### Setting up the virtual environment:
 
