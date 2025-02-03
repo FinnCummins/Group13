@@ -1,0 +1,10 @@
+# Virtual environment
+venv/
+ENV/
+
+# misc
+.vscode/
+.idea/
+Flask/
+__pycache__/
+*.py[cod]
