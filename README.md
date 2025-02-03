@@ -1,5 +1,9 @@
-## Adding API keys to the .env file:
-Replace `addkeyhere` with your actual API keys.
+## 🔑 Adding API keys to the .env file:
+To set up your environment variables, copy `.env.example` to a new file named `.env` and replace `insert_your_key_here` with your actual API keys.
+
+```bash
+cp backend/.env.example backend/.env
+```
 
 ## Running the application using a venv:
 ### Setting up the virtual environment:
