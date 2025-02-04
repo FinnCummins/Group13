@@ -36,3 +36,12 @@ To start the Flask application:
 cd backend/app/
 flask --app app run
 ```
+
+# Start the database
+First ensure that you have docker installed on your machine.
+
+Then to start the PostgreSQL Database:
+```bash
+cd database
+docker compose up -d
+```
