@@ -27,6 +27,17 @@ class Student(db.Model):
     interests = db.Column(db.ARRAY(db.Text))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Supervisor(db.Model):
+    __tablename__ = 'supervisors'
+
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    staff_id = db.Column(db.String(20), unique=True, nullable=False)
+    research_interests = db.Column(db.ARRAY(db.Text))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 with app.app_context():
     db.create_all()
 
