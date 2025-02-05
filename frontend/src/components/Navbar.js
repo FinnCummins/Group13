@@ -7,10 +7,10 @@ export default function Navbar() {
   const toggleNav = () => setNavOpen(!navOpen);
 
   return (
-    <div className="fixed top-0 w-full h-[80px] flex justify-between items-center px-4 bg-[var(--background)] text-[var(--text)] z-50 shadow">
+    <div className="fixed top-0 w-full h-[100px] flex justify-between items-center px-4 bg-[var(--background)] text-[var(--text)] z-50 shadow">
       {/* Trinity Logo */}
       <div>
-        <img src="/Trinity.jpg" alt="Trinity Logo" className="h-12 w-auto" />
+        <img src="/Trinity.jpg" alt="Trinity Logo" className="h-22 max-h-[100px] w-auto" />
       </div>
 
       {/* Desktop Menu */}
