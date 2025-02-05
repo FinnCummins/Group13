@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
 from llm_api import call_open_ai
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -24,8 +25,17 @@ class Student(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     student_id = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)  # New password field
     interests = db.Column(db.ARRAY(db.Text))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        """Hashes and sets the user's password"""
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verifies the given password against the stored hash"""
+        return check_password_hash(self.password, password)
 
 class Supervisor(db.Model):
     __tablename__ = 'supervisors'
@@ -35,8 +45,17 @@ class Supervisor(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     staff_id = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)  # New password field
     research_interests = db.Column(db.ARRAY(db.Text))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        """Hashes and sets the user's password"""
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verifies the given password against the stored hash"""
+        return check_password_hash(self.password, password)
 
 with app.app_context():
     db.create_all()
