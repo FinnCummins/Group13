@@ -11,6 +11,7 @@ To run the application using Docker, please ensure that Docker Desktop ([downloa
 ```bash
 docker-compose up --build -d
 ```
+Frontend: http://localhost:3000 Backend: http://localhost:5000
 
 and to stop:
 ```bash

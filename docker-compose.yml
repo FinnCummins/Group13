@@ -29,6 +29,16 @@ services:
       - postgres_db
     networks:
       - my_network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_container
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
 
 volumes:
   postgres_data:
