@@ -19,3 +19,13 @@ CREATE TABLE IF NOT EXISTS supervisors (
     research_interests TEXT[],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS projects (
+    id SERIAL PRIMARY KEY,
+    project_title VARCHAR(100) NOT NULL,
+    project_description VARCHAR(2000) NOT NULL,
+    keywords TEXT[],
+    supervisor_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE
+);
