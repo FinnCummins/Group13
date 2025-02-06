@@ -1,5 +1,6 @@
 Flask
 Flask-SQLAlchemy
+flask_sqlalchemy
 python-dotenv
 openai
 psycopg2-binary
