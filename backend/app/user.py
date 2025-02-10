@@ -48,3 +48,18 @@ def create_student():
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"message": "Student created", "student_id": new_student.id}), 201
+
+@user_bp.route('/students/<int:student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    student = Student.query.get(student_id)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    try:
+        db.session.delete(student)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Student deleted"}), 200
