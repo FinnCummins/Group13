@@ -4,7 +4,7 @@ import Head from 'next/head';
 import LoginNavbar from '@/components/LoginNavbar';
 import Link from 'next/link';
 
-export default function Login() {
+export default function Signup() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -18,17 +18,17 @@ export default function Login() {
   return (
     <div>
       <Head>
-        <title>Login - Final Year Project Finder</title>
-        <meta name="description" content="Login to access your account and manage your projects." />
+        <title>Sign Up - Final Year Project Finder</title>
+        <meta name="description" content="Create an account to manage your projects." />
       </Head>
 
       <LoginNavbar></LoginNavbar>
       
       <main className="mt-20 text-center px-4">
         <section className="bg-[var(--foreground)] text-[var(--background)] py-16">
-          <h1 className="text-6xl font-bold mb-4">Login</h1>
+          <h1 className="text-6xl font-bold mb-4">Sign Up</h1>
           <p className="text-lg mb-8">
-            Please enter your credentials to log in.
+            Create an account to manage your projects.
           </p>
           <form className="max-w-md mx-auto bg-white p-8 rounded shadow-md">
             <div className="mb-4">
@@ -40,6 +40,17 @@ export default function Login() {
                 id="username"
                 type="text"
                 placeholder="Username"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-left text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                Email
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email"
+                type="email"
+                placeholder="Email"
               />
             </div>
             <div className="mb-6">
@@ -54,26 +65,16 @@ export default function Login() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Link href="/student">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Log In as Student
-                </button>
-              </Link>
-              <Link href="/supervisor">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Log In as Supervisor
-                </button>
-              </Link>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+              >
+                Sign Up
+              </button>
             </div>
           </form>
           <p className="mt-4">
-            Don&apos;t have an account? <Link href="/signup" className="text-black hover:text-gray-700">Sign up!</Link>
+            Already have an account? <Link href="/login" className="text-black hover:text-gray-700">Log in!</Link>
           </p>
         </section>
       </main>
