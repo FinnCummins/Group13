@@ -1,0 +1,14 @@
+name: Prevent Direct Pushes to Main
+
+on: [push]
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Branch
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "❌ Direct pushes to main are not allowed! Please create a pull request in a separate branch."
+            exit 1
+          fi
