@@ -20,8 +20,7 @@ export default function Home() {
         <section className="bg-[var(--foreground)] text-[var(--background)] pt-16 pb-8">
           <h1 className="text-6xl font-bold mb-4">Welcome to Final Year Project Finder</h1>
           <p className="text-lg">
-            Find, research, and select the perfect final year project that aligns with your interests.
-            Our built-in chatbot helps you discover projects.
+            Explore projects that align with your interests!
           </p>
         </section>
 

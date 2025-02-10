@@ -4,8 +4,6 @@ import { useState } from 'react';
 import StudentNavbar from '@/components/StudentNavbar'; 
 
 export default function StudentHomePage() {
-
-
   return (
     <>
       <StudentNavbar /> 
