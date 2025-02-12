@@ -28,7 +28,7 @@ with app.app_context():
 
 @app.route('/')
 def hello_world():  # put application's code here
-    return "hello world"  #call_open_ai()
+    return "hello world"  #call_open_ai("prompt here")
 
 
 app.register_blueprint(user_bp, url_prefix='/api')
