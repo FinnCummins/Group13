@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
 from user import user_bp
-from supervisor import supervisor_bp
 from project import project_bp
 from models import db, Student, Supervisor
 from llm_api import call_open_ai
@@ -28,7 +27,6 @@ def hello_world():  # put application's code here
 
 
 app.register_blueprint(user_bp, url_prefix='/api')
-app.register_blueprint(supervisor_bp, url_prefix='/api')
 app.register_blueprint(project_bp, url_prefix='/api')
 
 if __name__ == '__main__':
