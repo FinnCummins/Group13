@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token
 from models import Student, db, Supervisor
 
 user_bp = Blueprint('user', __name__)
@@ -59,6 +60,26 @@ def delete_user(model, id):
 
     return jsonify({"message": f"{model.__name__} deleted"}), 200
 
+def login_user(model, email, password):
+
+    user = model.query.filter_by(email=email).first()
+
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    access_token = create_access_token(identity=user.id)
+
+    return jsonify({
+        "message": "Login successful",
+        "access_token": access_token,
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "college_id": user.college_id,
+        "interests": user.interests
+    }), 200
+
 # -----------------------
 # Student Endpoints
 # -----------------------
@@ -83,6 +104,15 @@ def create_student():
 def delete_student(id):
     return delete_user(Student, id)
 
+@user_bp.route('/students/login', methods=['POST'])
+def login_student():
+    data = request.get_json()
+    
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({"error": "Email and password are required"}), 400
+    
+    return login_user(Student, data['email'], data['password'])
+
 # -----------------------
 # Supervisor Endpoints
 # -----------------------
@@ -106,3 +136,12 @@ def create_supervisor():
 @user_bp.route('/supervisors/<int:id>', methods=['DELETE'])
 def delete_supervisor(id):
     return delete_user(Supervisor, id)
+
+@user_bp.route('/supervisors/login', methods=['POST'])
+def login_supervisor():
+    data = request.get_json()
+    
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({"error": "Email and password are required"}), 400
+    
+    return login_user(Supervisor, data['email'], data['password'])
