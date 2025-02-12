@@ -10,8 +10,8 @@ export default function ChatBox() {
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSend = async () => { 
+      if (!input.trim()) return;
 
     const userMessage = { text: input, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
@@ -23,9 +23,7 @@ export default function ChatBox() {
 
   // replace with api call
   const simulateLLMResponse = async (userInput) => {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve("response to: " + userInput), 1000)
-    );
+    return "response to: " + userInput
   };
 
   useEffect(() => {
