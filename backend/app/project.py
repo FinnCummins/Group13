@@ -28,4 +28,39 @@ def create_project():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"message": "Project created", "project_id": new_project.id}), 201
+    return jsonify({"message": "Project created", "project_id": new_project.id})
+
+@project_bp.route('/projects/<int:project_id>', methods=['PUT'])
+def update_project(project_id):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({'message': 'Project not found'}), 404
+
+    data = request.get_json()
+    if 'project_title' in data:
+        project.project_title = data['project_title']
+    if 'project_description' in data:
+        project.project_description = data['project_description']
+    if 'keywords' in data:
+        project.keywords = data['keywords']
+    
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Project updated successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({'message': 'Project not found'}), 404
+
+    try:
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({'message': 'Project deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
