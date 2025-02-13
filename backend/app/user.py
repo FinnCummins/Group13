@@ -41,7 +41,7 @@ def get_user_by_id(model, id):
 
 
 def create_user(model, data):
-    required_fields = ["first_name", "last_name", "email", "college_id", "password"]
+    required_fields = ["first_name", "last_name", "email", "password"]
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
@@ -50,7 +50,7 @@ def create_user(model, data):
         first_name=data["first_name"],
         last_name=data["last_name"],
         email=data["email"],
-        college_id=data["college_id"],
+        college_id=data.get("college_id", ""),
         interests=data.get("interests", [])
     )
     new_user.set_password(data["password"])

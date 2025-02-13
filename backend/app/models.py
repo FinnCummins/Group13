@@ -11,7 +11,7 @@ class User(db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    college_id = db.Column(db.String(20), unique=True, nullable=False)
+    college_id = db.Column(db.String(20))
     password = db.Column(db.Text, nullable=False)
     interests = db.Column(db.ARRAY(db.Text))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
