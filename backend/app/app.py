@@ -25,7 +25,6 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
 @app.route('/')
 def hello_world():
     return "This application will help guide final year computer science students find and select their capstone project"
