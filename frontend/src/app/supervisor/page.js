@@ -10,12 +10,14 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const response = await fetch('http://backend:5001/projects');
+        const response = await fetch('http://backend:5001/api/projects');
         if (!response.ok) {
           throw new Error('Failed to fetch projects');
         }
+
         const data = await response.json();
-        setProjects(data.projects || []);
+
+        setProjects(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.message);
       }
@@ -42,9 +44,9 @@ export default function SupervisorHomePage() {
           <p>No projects available</p>
         ) : (
           <ul>
-            {projects.map(project => (
+            {projects.map((project) => (
               <li key={project.id}>
-                <strong>{project.name}</strong> — {project.description}
+                <strong>{project.project_title}</strong> — {project.project_description}
               </li>
             ))}
           </ul>
