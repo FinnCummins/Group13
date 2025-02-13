@@ -30,6 +30,21 @@ def create_project():
 
     return jsonify({"message": "Project created", "project_id": new_project.id})
 
+@project_bp.route('/projects', methods=['GET'])
+def get_projects():
+    projects = Project.query.all()
+    results = []
+    for project in projects:
+        project_data = {
+            "id": project.id,
+            "project_title": project.project_title,
+            "project_description": project.project_description,
+            "keywords": project.keywords,
+            "supervisor_id": project.supervisor_id
+        }
+        results.append(project_data)
+    return jsonify(results), 200
+
 @project_bp.route('/projects/<int:project_id>', methods=['PUT'])
 def update_project(project_id):
     project = Project.query.get(project_id)
