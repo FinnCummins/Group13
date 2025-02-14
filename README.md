@@ -17,6 +17,8 @@ and to stop:
 ```bash
 docker-compose down
 ```
+run `docker-compose down --volumes` to delete database data if a reset is needed
+
 
 ## Running the application using a venv:
 ### Setting up the virtual environment:

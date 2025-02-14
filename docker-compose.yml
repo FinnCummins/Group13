@@ -24,7 +24,7 @@ services:
       FLASK_APP: app/app.py
       POSTGRES_HOST: postgres_db
     ports:
-      - "5001:5000"
+      - "5001:5001"
     depends_on:
       - postgres_db
     networks:
