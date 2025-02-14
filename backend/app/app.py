@@ -4,8 +4,8 @@ from flask_jwt_extended import JWTManager
 import os
 from user import user_bp
 from project import project_bp
-from models import db, Student, Supervisor
-from llm_api import call_open_ai
+from llm import llm_bp
+from models import db
 
 app = Flask(__name__)
 
@@ -29,21 +29,9 @@ with app.app_context():
 def hello_world():
     return "This application will help guide final year computer science students find and select their capstone project"
 
-@app.route('/llm')
-def chat_with_llm():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No input data provided"}), 400
-
-    if "message" not in data:
-        return jsonify({"error": f"Missing field: message"}), 400
-
-    message = data["message"]
-
-    return call_open_ai(message)
-
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(project_bp, url_prefix='/api')
+app.register_blueprint(llm_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run()
