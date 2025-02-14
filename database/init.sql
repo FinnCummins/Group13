@@ -29,3 +29,10 @@ CREATE TABLE IF NOT EXISTS projects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS chatbotHistory (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    context TEXT,
+    FOREIGN KEY (user_id) REFERENCES student(id) ON DELETE CASCADE
+);

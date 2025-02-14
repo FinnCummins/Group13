@@ -47,3 +47,12 @@ class Project(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     supervisor = db.relationship('Supervisor', backref=db.backref('projects', lazy=True, cascade="all, delete-orphan"))
+
+class ChatbotHistory(db.Model):
+    __tablename__ = 'chatbotHistory'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete="CASCADE"), nullable=False)
+    context = db.Column(db.Text)
+
+    user = db.relationship('Student', backref=db.backref('chatbot_history', lazy=True, cascade="all, delete-orphan"))
