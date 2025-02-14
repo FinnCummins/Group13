@@ -14,7 +14,6 @@ def get_users(model):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "email": user.email,
-            "college_id": user.college_id,
             "interests": user.interests,
             "created_at": user.created_at.isoformat()
         }
@@ -32,7 +31,6 @@ def get_user_by_id(model, id):
         "first_name": user.first_name,
         "last_name": user.last_name,
         "email": user.email,
-        "college_id": user.college_id,
         "interests": user.interests,
         "created_at": user.created_at.isoformat()
     }
@@ -50,7 +48,6 @@ def create_user(model, data):
         first_name=data["first_name"],
         last_name=data["last_name"],
         email=data["email"],
-        college_id=data.get("college_id", ""),
         interests=data.get("interests", [])
     )
     new_user.set_password(data["password"])
@@ -95,7 +92,6 @@ def login_user(model, email, password):
         "first_name": user.first_name,
         "last_name": user.last_name,
         "email": user.email,
-        "college_id": user.college_id,
         "interests": user.interests
     }), 200
 

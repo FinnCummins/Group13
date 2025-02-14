@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS students (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    college_id VARCHAR(20) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     interests TEXT[],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -14,7 +13,6 @@ CREATE TABLE IF NOT EXISTS supervisors (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    college_id VARCHAR(20) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     interests TEXT[],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

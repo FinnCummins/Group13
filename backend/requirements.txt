@@ -6,3 +6,4 @@ openai
 psycopg2-binary
 werkzeug
 flask_jwt_extended
+flask_cors
