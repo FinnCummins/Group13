@@ -3,10 +3,17 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import LoginNavbar from '@/components/LoginNavbar';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Signup() {
   const [isClient, setIsClient] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [preferences, setPreferences] = useState([]);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -25,6 +32,42 @@ export default function Signup() {
     );
   };
 
+  const handleStudentSignup = async () => {
+    setError('');
+    try {
+      console.log('Sending request to: http://127.0.0.1:5001/api/students');
+      const response = await fetch('http://127.0.0.1:5001/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password, interests: preferences }),
+      });
+
+      const contentType = response.headers.get('content-type');
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Response is not JSON:', text);
+        setError('An error occurred. Please try again.');
+        return;
+      }
+
+      console.log('Response:', data);
+
+      if (response.ok) {
+          router.push('/student');
+      } else {
+        setError(data.error || 'Sign up failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred. Please try again.');
+    }
+  };
+
   return (
     <div>
       <Head>
@@ -40,7 +83,34 @@ export default function Signup() {
           <p className="text-lg mb-8">
             Create an account to manage your projects.
           </p>
-          <form className="max-w-md mx-auto bg-white p-8 rounded shadow-md">
+          {error && <p className="text-red-500">{error}</p>}
+          <form className="max-w-md mx-auto bg-white p-8 rounded shadow-md" onSubmit={(e) => e.preventDefault()}>
+          <div className="mb-4">
+              <label className="block text-left text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+                First Name
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="firstName"
+                type="firstName"
+                placeholder="Jane"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-left text-gray-700 text-sm font-bold mb-2" htmlFor="lastName">
+                Last Name
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                id="lastName"
+                type="lastName"
+                placeholder="Doe"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
             <div className="mb-4">
               <label className="block text-left text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                 Email
@@ -49,7 +119,9 @@ export default function Signup() {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
                 type="email"
-                placeholder="Email"
+                placeholder="janed@tcd.ie"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="mb-6">
@@ -61,6 +133,8 @@ export default function Signup() {
                 id="password"
                 type="password"
                 placeholder="******************"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div className="mb-4">
@@ -126,22 +200,20 @@ export default function Signup() {
               </div>
             </div>
             <div className="flex items-center justify-between">
-            <Link href="/student">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Sign Up as Student
-                </button>
-              </Link>
-              <Link href="/supervisor">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Sign Up as Staff
-                </button>
-              </Link>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+                onClick={() => handleStudentSignup()}
+              >
+                Sign Up as Student
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+                onClick={() => handleStudentSignup()}
+              >
+                Sign Up as Staff
+              </button>
             </div>
           </form>
           <p className="mt-4">
