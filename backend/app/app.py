@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS 
 import os
 from user import user_bp
 from project import project_bp
@@ -8,6 +9,8 @@ from llm import llm_bp
 from models import db
 
 app = Flask(__name__)
+
+CORS(app)
 
 app.config["JWT_SECRET_KEY"] = "super_secret_key_123"
 

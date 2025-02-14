@@ -41,7 +41,7 @@ export default function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password, interests: preferences }),
+        body: JSON.stringify({ first_name: firstName, last_name: lastName, email: email, password: password, interests: preferences }),
       });
 
       const contentType = response.headers.get('content-type');
