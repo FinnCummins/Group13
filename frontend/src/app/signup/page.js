@@ -32,11 +32,11 @@ export default function Signup() {
     );
   };
 
-  const handleStudentSignup = async () => {
+  const handleSignup = async (url) => {
     setError('');
     try {
-      console.log('Sending request to: http://127.0.0.1:5001/api/students');
-      const response = await fetch('http://127.0.0.1:5001/api/students', {
+      console.log('Sending request to: {url}');
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,11 @@ export default function Signup() {
       console.log('Response:', data);
 
       if (response.ok) {
+        if (url.includes('students')) {
           router.push('/student');
+        } else if (url.includes('supervisors')) {
+          router.push('/supervisor');
+        }
       } else {
         setError(data.error || 'Sign up failed');
       }
@@ -203,14 +207,14 @@ export default function Signup() {
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => handleStudentSignup()}
+                onClick={() => handleSignup('http://127.0.0.1:5001/api/students')}
               >
                 Sign Up as Student
               </button>
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => handleStudentSignup()}
+                onClick={() => handleSignup('http://127.0.0.1:5001/api/supervisors')}
               >
                 Sign Up as Staff
               </button>

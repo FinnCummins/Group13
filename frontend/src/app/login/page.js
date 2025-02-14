@@ -94,14 +94,14 @@ export default function Login() {
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => handleLogin('/students/login')}
+                onClick={() => handleLogin('http://127.0.0.1:5001/api/students/login')}
               >
                 Log In as Student
             </button>
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => handleLogin('/supervisors/login')}
+                onClick={() => handleLogin('http://127.0.0.1:5001/api/supervisors/login')}
               >
                 Log In as Supervisor
               </button>
