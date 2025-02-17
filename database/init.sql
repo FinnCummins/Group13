@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS projects (
     project_title VARCHAR(100) NOT NULL,
     project_description VARCHAR(2000) NOT NULL,
     keywords TEXT[],
+    project_status VARCHAR(100) NOT NULL,
     supervisor_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE

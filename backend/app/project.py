@@ -18,6 +18,7 @@ def create_project():
         project_title=data["project_title"],
         project_description=data["project_description"],
         keywords=data.get("keywords", []),
+        project_status = data.get("project_status", "No status"),
         supervisor_id=data["supervisor_id"],
     )
 
@@ -40,6 +41,7 @@ def get_projects():
             "project_title": project.project_title,
             "project_description": project.project_description,
             "keywords": project.keywords,
+            "project_status": project.project_status,
             "supervisor_id": project.supervisor_id
         }
         results.append(project_data)
@@ -58,6 +60,8 @@ def update_project(project_id):
         project.project_description = data['project_description']
     if 'keywords' in data:
         project.keywords = data['keywords']
+    if 'project_status' in data:
+        project.project_status = data['project_status']
     
     try:
         db.session.commit()
