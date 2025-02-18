@@ -43,6 +43,7 @@ class Project(db.Model):
     project_description = db.Column(db.String(2000), nullable=False)
     keywords = db.Column(db.ARRAY(db.Text))
     supervisor_id = db.Column(db.Integer, db.ForeignKey('supervisors.id', ondelete="CASCADE"), nullable=False)
+    project_status = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     supervisor = db.relationship('Supervisor', backref=db.backref('projects', lazy=True, cascade="all, delete-orphan"))
