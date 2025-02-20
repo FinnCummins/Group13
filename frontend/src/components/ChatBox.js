@@ -23,7 +23,28 @@ export default function ChatBox() {
 
   // replace with api call
   const simulateLLMResponse = async (userInput) => {
-    return "response to: " + userInput
+    try {
+      const response = await fetch('http://127.0.0.1:5001/api/llm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: '2', message: userInput }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response from backend:', errorText);
+        throw new Error('Failed to fetch response from LLM');
+      }
+
+      const data = await response.json();
+      console.log('Received response from backend:', data);
+      return data.response;
+    } catch (error) {
+      console.error('Error:', error);
+      return 'An error occurred. Please try again.';
+    }
   };
 
   useEffect(() => {

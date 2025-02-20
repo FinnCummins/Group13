@@ -30,7 +30,11 @@ def chat_with_llm():
         chat_context.context = f"{message} \n\n#PREVIOUS MESSAGE (IGNORE UNLESS CONTEXT NEEDED)# " + chat_context.context
         db.session.commit()
 
-    response = call_open_ai(chat_context.context)
+    try:
+        response = call_open_ai(chat_context.context)
+    except Exception as e:
+        print(f"Error calling OpenAI API: {e}")
+        return jsonify({"error": str(e)}), 500
 
     chat_context.context = "\n#CHATBOT RESPONSE#" + response + chat_context.context
     db.session.commit()
@@ -79,8 +83,12 @@ def call_open_ai(prompt):
     openai_api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=openai_api_key)
 
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return completion.choices[0].message.content
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error in OpenAI API call: {e}")
+        raise
