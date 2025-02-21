@@ -9,11 +9,13 @@ services:
       POSTGRES_DB: mydatabase
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the init.sql file
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql  # First, initialize schema
+      - ./database/data.sql:/docker-entrypoint-initdb.d/02-data.sql  # Then, insert initial data
     ports:
       - "5432:5432"
     networks:
       - my_network
+
   backend:
     build:
       context: ./backend

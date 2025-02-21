@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS supervisors (
 
 CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
-    project_title VARCHAR(100) NOT NULL,
+    project_title VARCHAR(255) NOT NULL,
     project_description VARCHAR(2000) NOT NULL,
     keywords TEXT[],
     project_status VARCHAR(100) NOT NULL,
@@ -33,5 +33,5 @@ CREATE TABLE IF NOT EXISTS chatbotHistory (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     context TEXT,
-    FOREIGN KEY (user_id) REFERENCES student(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES students(id) ON DELETE CASCADE
 );
