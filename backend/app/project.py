@@ -36,7 +36,6 @@ def create_project():
     return jsonify({"message": "Project created", "project_id": new_project.id})
 
 
-
 @project_bp.route('/projects', methods=['GET'])
 def get_projects():
     supervisor_ids = request.args.getlist('supervisor_ids', type=int)

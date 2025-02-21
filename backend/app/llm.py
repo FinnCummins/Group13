@@ -79,6 +79,24 @@ def clear_chat_history():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@llm_bp.route('/embed', methods=['POST'])
+def embed_text():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    if "text" not in data:
+        return jsonify({"error": "Missing field: text"}), 400
+
+    text_to_embed = data["text"]
+
+    try:
+        embedding = get_embedding(text_to_embed)
+        return jsonify({"embedding": embedding}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 def call_open_ai(prompt):
     openai_api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=openai_api_key)
@@ -92,3 +110,16 @@ def call_open_ai(prompt):
     except Exception as e:
         print(f"Error in OpenAI API call: {e}")
         raise
+
+
+def get_embedding(text):
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=openai_api_key)
+
+    response = client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=text
+    )
+
+    embedding_vector = response.data[0].embedding
+    return embedding_vector
