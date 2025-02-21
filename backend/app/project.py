@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY, TEXT
+
 from models import Project, db
 
 project_bp = Blueprint('project', __name__)
+
 
 @project_bp.route('/projects', methods=['POST'])
 def create_project():
@@ -18,7 +22,7 @@ def create_project():
         project_title=data["project_title"],
         project_description=data["project_description"],
         keywords=data.get("keywords", []),
-        project_status = data.get("project_status", "No status"),
+        project_status=data.get("project_status", "No status"),
         supervisor_id=data["supervisor_id"],
     )
 
@@ -31,9 +35,27 @@ def create_project():
 
     return jsonify({"message": "Project created", "project_id": new_project.id})
 
+
+
 @project_bp.route('/projects', methods=['GET'])
 def get_projects():
-    projects = Project.query.all()
+    supervisor_ids = request.args.getlist('supervisor_ids', type=int)
+    keywords = request.args.getlist('keywords', type=str)
+    project_status = request.args.get('project_status', None)
+
+    query = Project.query
+
+    if supervisor_ids:
+        query = query.filter(Project.supervisor_id.in_(supervisor_ids))
+
+    if keywords:
+        query = query.filter(Project.keywords.op("&&")(cast(keywords, ARRAY(TEXT))))
+
+    if project_status:
+        query = query.filter(Project.project_status == project_status)
+
+    projects = query.all()
+
     results = []
     for project in projects:
         project_data = {
@@ -46,6 +68,7 @@ def get_projects():
         }
         results.append(project_data)
     return jsonify(results), 200
+
 
 @project_bp.route('/projects/<int:project_id>', methods=['PUT'])
 def update_project(project_id):
@@ -62,13 +85,14 @@ def update_project(project_id):
         project.keywords = data['keywords']
     if 'project_status' in data:
         project.project_status = data['project_status']
-    
+
     try:
         db.session.commit()
         return jsonify({'message': 'Project updated successfully'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
 
 @project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
 def delete_project(project_id):
