@@ -20,18 +20,20 @@ vector_dimension = 1536
 if index_name not in pc.list_indexes().names():
     print(f"Index '{index_name}' does not exist. Creating it now...")
     pc.create_index(
-        name=index_name, 
-        dimension=vector_dimension, 
-        metric='cosine', 
+        name=index_name,
+        dimension=vector_dimension,
+        metric='cosine',
         spec=ServerlessSpec(cloud='aws', region='us-east-1')
     )
 
 index = pc.Index(index_name)
 
+
 def validate_vector(vector, expected_dimension):
     if len(vector) != expected_dimension:
         return False
     return True
+
 
 @vector_bp.route('/upsert', methods=['POST'])
 def upsert():
@@ -68,9 +70,14 @@ def upsert_vector(data):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @vector_bp.route('/query', methods=['POST'])
-def query_vectors():
+def query():
     data = request.get_json()
+    return query_vectors(data)
+
+
+def query_vectors(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
@@ -121,6 +128,7 @@ def query_vectors():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @vector_bp.route('/delete', methods=['DELETE'])
 def delete_vectors():

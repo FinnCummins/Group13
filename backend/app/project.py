@@ -2,8 +2,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
-from vector_db import upsert_vector
-from llm import generate_project_embedding
+from vector_db import upsert_vector, query_vectors
+from llm import generate_project_embedding, get_embedding
 from models import Project, db
 
 project_bp = Blueprint('project', __name__)
@@ -73,6 +73,61 @@ def get_projects():
         }
         results.append(project_data)
     return jsonify(results), 200
+
+# TODO: Associate interests with user session
+@project_bp.route('/search_vectorized_projects', methods=['POST'])
+def search_vectorized_projects():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    if "message" not in data:
+        return jsonify({"error": f"Missing field: message"}), 400
+
+    project_status = data.get("project_status", None)
+    interests = data.get("interests", ["unknown"])
+    top_k = data.get("top_k", 5)
+
+    embedded_message = get_embedding("interests: " + ", ".join(interests) + data["message"])
+
+    query_params = {"namespace": "projectNS1",
+                    "top_k": top_k,
+                    "include_values": False,
+                    "include_metadata": True,
+                    "vector": embedded_message
+                    }
+
+    if project_status:
+        query_params["filter"] = {"project_status": project_status}
+
+    vector_response, vector_status = query_vectors(query_params)
+
+    if vector_status != 200:
+        return jsonify({vector_response.get_data(as_text=True)}), vector_status
+
+    matches = vector_response.get_json().get("matches", [])
+
+    project_matches = []
+    for match in matches:
+        project_id = match.get("id")
+        score = match.get("score")
+
+        try:
+            project = Project.query.get(int(project_id))
+        except Exception:
+            project = None
+        if project:
+            project_matches.append({
+                "id": project.id,
+                "project_title": project.project_title,
+                "project_description": project.project_description,
+                "keywords": project.keywords,
+                "project_status": project.project_status,
+                "match_score": score
+            })
+
+    return jsonify({"matches": project_matches}), 200
+
 
 # should only be called when database is initialized with projects
 @project_bp.route('/vectorize_projects', methods=['POST'])
