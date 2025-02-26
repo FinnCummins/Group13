@@ -5,6 +5,9 @@ To set up your environment variables, copy `.env.example` to a new file named `.
 cp backend/.env.example backend/.env
 ```
 
+Keys: [OpenAI](https://platform.openai.com/settings/organization/api-keys),
+[Pinecone](https://docs.pinecone.io/guides/get-started/quickstart)
+
 ## Running the application using Docker:
 To run the application using Docker, please ensure that Docker Desktop ([download here](https://www.docker.com/products/docker-desktop/)) is running on your machine. You can now run the application using docker-compose:
 
