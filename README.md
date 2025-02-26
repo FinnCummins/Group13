@@ -74,4 +74,7 @@ try our website's built-in chatbot!
 
 ## PostgreSQL Database
 The postgres database for our website is now running locally within a docker container on your computer. To view
-the contents of this postgres database please install pgadmin to view the contents of this local database.
+the contents of this postgres database please install pgadmin to view its contents.
+
+## Pinecone Vector Database
+To access the hosted vector database for this project please navigate to the following url: https://app.pinecone.io/organizations/-N_KaXCftxjZei6q898g/projects/d239873b-ce31-43da-b3f3-497214979d0f/indexes/final-year-project/browser
