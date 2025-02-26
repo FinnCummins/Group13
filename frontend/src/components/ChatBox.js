@@ -7,6 +7,9 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEnd = useRef(null);
+  const userId = localStorage.getItem('userId');
+
+  console.log('ChatBox rendered with userId:', userId);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
@@ -17,19 +20,19 @@ export default function ChatBox() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
-    const botResponse = await simulateLLMResponse(input);
+    const botResponse = await simulateLLMResponse(input, userId);
     setMessages((prev) => [...prev, { text: botResponse, sender: "bot" }]);
   };
 
   // replace with api call
-  const simulateLLMResponse = async (userInput) => {
+  const simulateLLMResponse = async (userInput, userId) => {
     try {
       const response = await fetch('http://127.0.0.1:5001/api/llm', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user_id: '2', message: userInput }),
+        body: JSON.stringify({ user_id: userId, message: userInput }),
       });
 
       if (!response.ok) {
