@@ -1,8 +1,10 @@
 import os
 from openai import OpenAI
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from models import ChatbotHistory, db
-
+from user import get_user_interests
+from project import get_projects
+from models import Student
 
 llm_bp = Blueprint('llm', __name__)
 
@@ -23,7 +25,10 @@ def chat_with_llm():
     chat_context = ChatbotHistory.query.filter_by(user_id=user_id).first()
 
     if not chat_context:
-        chat_context = ChatbotHistory(user_id=user_id, context=message)
+        initial_prompt = initial_prompt(user_id)
+        initial_context = f"{message} \n\n#INITIAL PROMPT#" + initial_prompt
+
+        chat_context = ChatbotHistory(user_id=user_id, context=initial_context)
         db.session.add(chat_context)
         db.session.commit()
     else:
@@ -78,6 +83,33 @@ def clear_chat_history():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+def initial_prompt(user_id, top_k = 10):
+
+    interests = get_user_interests(Student, user_id)
+    projects = get_projects()[0].get_json()
+
+    formatted_projects = []
+
+    for project in projects[:top_k]:
+        title = project.get("project_title", "No Title")
+        description = project.get("project_description", "No Description")[:200]
+        status = project.get("project_status", "Unknown Status")
+
+        formatted_projects.append(f"- {title} ({status})\n  Description: {description}...")
+
+    projects_str = "\n\n".join(formatted_projects)
+
+    prompt = f"""
+        You are an intelligent assistant designed to help students choose a final year project. The student has expressed interest in {interests}. 
+
+        Here is a list of available projects: 
+        {projects_str}
+
+        Wait for the student to speak first before responding. Provide guidance and recommendations based on their interests and the available projects.
+    """
+
+    return prompt
 
 def call_open_ai(prompt):
     openai_api_key = os.getenv("OPENAI_API_KEY")
