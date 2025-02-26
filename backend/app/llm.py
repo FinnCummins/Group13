@@ -25,8 +25,7 @@ def chat_with_llm():
     chat_context = ChatbotHistory.query.filter_by(user_id=user_id).first()
 
     if not chat_context:
-        initial_prompt = initial_prompt(user_id)
-        initial_context = f"{message} \n\n#INITIAL PROMPT#" + initial_prompt
+        initial_context = f"{message} \n\n#INITIAL PROMPT#" + initial_prompt(user_id)
 
         chat_context = ChatbotHistory(user_id=user_id, context=initial_context)
         db.session.add(chat_context)
