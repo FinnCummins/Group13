@@ -1,17 +1,3 @@
-Section "Overview"
-Provide an overview of your application/product and its features.
-Section  “Step by Step”
-
-Instructions necessary to run and test the software. 
-
-Include user accounts and password where needed.
-
-Section “Backends”
-
-Links to any backend systems that we should observe (e.g,. Firebase database). Please remember to invite us or to provide logins.
-
-https://www.markdownguide.org/cheat-sheet/
-
 # Overview
 
 ## Final Year Project Finder!
