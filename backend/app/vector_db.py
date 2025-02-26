@@ -23,7 +23,7 @@ if index_name not in pc.list_indexes().names():
         name=index_name, 
         dimension=vector_dimension, 
         metric='cosine', 
-        spec=ServerlessSpec(cloud='aws', region='us-west-2')
+        spec=ServerlessSpec(cloud='aws', region='us-east-1')
     )
 
 index = pc.Index(index_name)
