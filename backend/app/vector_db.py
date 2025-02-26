@@ -34,8 +34,12 @@ def validate_vector(vector, expected_dimension):
     return True
 
 @vector_bp.route('/upsert', methods=['POST'])
-def upsert_vector():
+def upsert():
     data = request.get_json()
+    return upsert_vector(data)
+
+
+def upsert_vector(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
@@ -54,7 +58,7 @@ def upsert_vector():
     namespace = data.get("namespace", "ns1")
     
     try:
-        vector_data = [(data["vector_id"], data["vector"], data["metadata"])]
+        vector_data = [(str(data["vector_id"]), data["vector"], data["metadata"])]
         index.upsert(vectors=vector_data, namespace=namespace)
         return jsonify({
             "message": "Vector upserted successfully",

@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
+from vector_db import upsert_vector
+from llm import generate_project_embedding
 from models import Project, db
 
 project_bp = Blueprint('project', __name__)
@@ -33,7 +35,25 @@ def create_project():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"message": "Project created", "project_id": new_project.id})
+    project_data = {
+        "id": new_project.id,
+        "project_title": new_project.project_title,
+        "project_description": new_project.project_description,
+        "keywords": new_project.keywords,
+        "project_status": new_project.project_status,
+    }
+
+    try:
+        embedding_response, embedding_status = generate_project_embedding(project_data)
+        if embedding_status != 200:
+            return jsonify({"error inserting project embedding into vector database": embedding_response.get_data(as_text=True)}), embedding_status
+        upsert_response, upsert_status = upsert_vector(embedding_response.get_json())
+        if upsert_status != 200:
+            return jsonify({"error inserting project embedding into vector database": upsert_response.get_data(as_text=True)}), upsert_status
+    except Exception as e:
+        return jsonify({"error inserting project embedding into vector database": str(e)}), 500
+
+    return jsonify({"message": "Project created", "project_id": new_project.id}), 200
 
 
 @project_bp.route('/projects', methods=['GET'])

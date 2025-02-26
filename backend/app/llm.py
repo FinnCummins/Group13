@@ -3,10 +3,11 @@ from openai import OpenAI
 from flask import Blueprint, request, jsonify, Response
 from models import ChatbotHistory, db
 from user import get_user_interests
-from project import get_projects
+#from project import get_projects
 from models import Student
 
 llm_bp = Blueprint('llm', __name__)
+
 
 @llm_bp.route('/llm', methods=['POST'])
 def chat_with_llm():
@@ -25,8 +26,7 @@ def chat_with_llm():
     chat_context = ChatbotHistory.query.filter_by(user_id=user_id).first()
 
     if not chat_context:
-        initial_prompt = initial_prompt(user_id)
-        initial_context = f"{message} \n\n#INITIAL PROMPT#" + initial_prompt
+        initial_context = f"{message} \n\n#INITIAL PROMPT#" + initial_prompt(user_id)
 
         chat_context = ChatbotHistory(user_id=user_id, context=initial_context)
         db.session.add(chat_context)
@@ -46,6 +46,7 @@ def chat_with_llm():
 
     return jsonify({"response": response}), 200
 
+
 @llm_bp.route('/llm', methods=['GET'])
 def chat_history():
     data = request.get_json()
@@ -61,6 +62,7 @@ def chat_history():
         return jsonify({'message': 'Chat history not found'}), 404
 
     return jsonify({'Chat history': chat_history.context}), 404
+
 
 @llm_bp.route('/llm', methods=['DELETE'])
 def clear_chat_history():
@@ -84,6 +86,7 @@ def clear_chat_history():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+
 @llm_bp.route('/embed', methods=['POST'])
 def embed_text():
     data = request.get_json()
@@ -105,7 +108,10 @@ def embed_text():
 @llm_bp.route('/embedProject', methods=['POST'])
 def embed_project():
     data = request.get_json()
+    return generate_project_embedding(data)
 
+
+def generate_project_embedding(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
 
@@ -117,12 +123,13 @@ def embed_project():
     text_to_embed = "title: " + data["project_title"] + "; description: " + data["project_description"]
 
     if 'keywords' in data:
-        text_to_embed += "; keywords: ".join(data['keywords'])
+        text_to_embed += "; keywords: " + ", ".join(data['keywords'])
 
     try:
         embedding = get_embedding(text_to_embed)
         metadata = {"project_status": data["project_status"], "project_title": data["project_title"]}
-        return jsonify({"namespace": "projectNS1", "vector_id": data["id"], "vector": embedding, "metadata": metadata}), 200
+        return jsonify(
+            {"namespace": "projectNS1", "vector_id": data["id"], "vector": embedding, "metadata": metadata}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -155,10 +162,9 @@ def get_embedding(text):
     return embedding_vector
 
 
-  def initial_prompt(user_id, top_k = 10):
-
+def initial_prompt(user_id, top_k=10):
     interests = get_user_interests(Student, user_id)
-    projects = get_projects()[0].get_json()
+    projects = []#get_projects()[0].get_json()
 
     formatted_projects = []
 
