@@ -58,6 +58,7 @@ export default function Signup() {
       console.log('Response:', data);
 
       if (response.ok) {
+        localStorage.setItem('userId', data.id);
         if (url.includes('students')) {
           router.push('/student');
         } else if (url.includes('supervisors')) {

@@ -34,6 +34,7 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem('userId', data.id);
         if (url.includes('students')) {
           router.push('/student');
         } else if (url.includes('supervisors')) {
