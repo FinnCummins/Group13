@@ -5,7 +5,7 @@
 
 ### For Students
 
-Take the stress out of selecting your final year project and save time by consulting our AI chatbot to find
+Take the stress out of selecting your final year project and save time by consulting our AI chatbot, which interfaces with OpenAI's LLM and a vector database, to find
 your perfect project!
 
 When you create an account on our web application you will be asked to insert your core research interests.
@@ -26,45 +26,34 @@ you have agreed to accept a particular student, you can then toggle the tag of y
 
 # Set-Up Instructions
 
-To set up and run this application please complete the following steps
-
 ## Step 1: Clone the repository
-Please clone the public repository found at https://github.com/FinnCummins/Group13
+Clone the public repository found at https://github.com/FinnCummins/Group13
 
 ## Step 2: Software installation
-To run our application you will require the following software:
+Download the following software if not already installed:
 
-- Python (https://www.python.org/downloads/)
-- Docker (https://docs.docker.com/desktop)
-
-Please navigate to the respective installation pages for each of the above software packages and follow the
-installation instructions for your specific computer.
+- [Python](https://www.python.org/downloads/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Step 3: API Keys
-To run this project you will need the following API Keys:
+Generate the following API Keys:
 
-- OpenAI api key
-- Pinecone api key
+- [OpenAI API Key](https://platform.openai.com/settings/organization/api-keys)
+- [Pinecone API Key](https://docs.pinecone.io/guides/get-started/quickstart)
 
-Once you have an api key for each service you will then need to proceed to putting them into a file called ".env.example" which is located within a folder named 'backend'. Once you have put all of the above keys inside ".env.example" please rename this file to ".env".
-
+Run this command to create an `.env` file. Replace the placeholders with the API keys (no quotation marks).
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Keys: [OpenAI](https://platform.openai.com/settings/organization/api-keys),
-[Pinecone](https://docs.pinecone.io/guides/get-started/quickstart)
-
-## Running the application using Docker:
 ## Step 4: Running the application using Docker:
-To run the application using Docker, please ensure that Docker Desktop ([download here](https://www.docker.com/products/docker-desktop/)) is running on your machine. You can now run the application using docker-compose:
+Ensure that Docker Desktop is running on your machine. Run the application using docker-compose:
 
 ```bash
 docker-compose up --build -d
 ```
-Frontend: http://localhost:3000 Backend: http://localhost:5001
 
-and to stop:
+To stop the containers:
 ```bash
 docker-compose down
 ```
@@ -73,6 +62,8 @@ docker-compose down
 Open up your web browser and navigate to http://localhost:3000. This will take you to the home 
 page of our website. You can now navigate through our website, sign up for an account, add projects and even
 try our website's built-in chatbot!
+
+The backend endpoints are accessible via http://localhost:5001
 
 # Backends
 
