@@ -50,12 +50,12 @@ cp backend/.env.example backend/.env
 Ensure that Docker Desktop is running on your machine. Run the application using docker-compose:
 
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 To stop the containers:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## Step 5: View the application
@@ -72,4 +72,4 @@ The postgres database for our website is now running locally within a docker con
 the contents of this postgres database please install pgadmin to view its contents.
 
 ## Pinecone Vector Database
-To access the hosted vector database for this project please navigate to the following url: https://app.pinecone.io/organizations/-N_KaXCftxjZei6q898g/projects/d239873b-ce31-43da-b3f3-497214979d0f/indexes/final-year-project/browser
+Click [here](https://app.pinecone.io/organizations/-N_KaXCftxjZei6q898g/projects/d239873b-ce31-43da-b3f3-497214979d0f/indexes/final-year-project/browser) to access the hosted vector database for this project
