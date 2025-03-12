@@ -1,7 +1,24 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import datetime
 import re
+from openai import OpenAI
+import ast
+
+def call_open_ai(prompt):
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(openai_api_key)
+    
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error in OpenAI API call: {e}")
+        raise
 
 def get_html(url):
     response = requests.get(url, verify=False)
@@ -58,6 +75,62 @@ def collect_project_details(url):
     date_published = soup.find('time', class_='entry-date published')
     project_info['created_at'] = date_published['datetime'] if date_published else datetime.datetime.now().isoformat()
     
+    prompt = f"""
+        I am now going to give you a project title and project description along with a number of keywords.
+
+        I want you to select relevant keywords from the list based on the project title/description. Please select between 3 to 7 keywords. i.e. a minimum of 3 and a maximum of 7.
+
+        Can you also please clean up any keywords that are not capitalised? Change something like "augmented and virtual reality" to "Augmented and Virtual Reality".
+
+        Please return this to me as a string which is a python list: ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+
+        Project title: {project_info['project_title']}
+        Project description: {project_info['project_description']}
+        Keywords: {project_info['keywords']}
+
+        Please do not print anything else in the response. Just that list.
+    """
+
+    response = call_open_ai(prompt)
+
+    print(f"Project: {project_info['project_title']}")
+    print(f"Project description: {project_info['project_description']}")
+    print(f"Response: {response}")
+
+    result_list = ast.literal_eval(response)
+
+    print(f"Result list: {result_list}")
+    project_info['keywords'] = result_list
+
+    prompt = f"""
+        I am now going to give you a project title and project descriptio
+
+        I want you to read both and determine whether the project has already been taken.
+
+        Some professors have indicated that a project has been taken by saying "This project has been taken" or maybe they input "["TAKEN"]" in the title or description.
+        All professors do this in different ways so please read the project title and description carefully.
+
+        If the project has not been taken, please return "Available". If the project has been taken, please return "Taken".
+
+        Please return it as a string in a python list like this: ["Available"] or ["Taken"]
+
+        Project title: {project_info['project_title']}
+        Project description: {project_info['project_description']}
+
+        Please do not print anything else in the response. Just that list with one item.
+    """
+
+    response = call_open_ai(prompt)
+
+    print(f"Project: {project_info['project_title']}")
+    print(f"Project description: {project_info['project_description']}")
+    print(f"Response: {response}")
+
+    result_list = ast.literal_eval(response)
+
+    print(f"Result list: {result_list}")
+    project_info['project_status'] = result_list[0]
+
     return project_info
 
 def collect_projects():
