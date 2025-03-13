@@ -22,6 +22,9 @@ export default function EditProjectPage() {
       </Head>
 
       <EditProjectNavbar />
+      <footer className="text-center py-6 border-t border-[var(--foreground)]">
+        <p>2025 Final Year Project Finder</p>
+      </footer>
     </div>
   );
 }

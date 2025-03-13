@@ -20,7 +20,7 @@ export default function StudentNavbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex">
         <li className="px-4">
-          <Link href="/status">Proposal Status</Link>
+          <Link href="/student">Student Dashboard</Link>
         </li>
         <li className="px-4">
           <Link href="/dashboard">Final Project Dashboard</Link>
@@ -44,8 +44,8 @@ export default function StudentNavbar() {
         }
       >
         <li className="py-6 text-4xl">
-          <Link href="/status" onClick={toggleNav}>
-          Proposal Status
+          <Link href="/student" onClick={toggleNav}>
+          Student Dashboard
           </Link>
         </li>
         <li className="py-6 text-4xl">
