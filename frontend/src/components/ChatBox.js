@@ -7,14 +7,14 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEnd = useRef(null);
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
 
-  console.log('ChatBox rendered with userId:', userId);
+  console.log("ChatBox rendered with userId:", userId);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const handleSend = async () => { 
-      if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
     const userMessage = { text: input, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
@@ -27,26 +27,26 @@ export default function ChatBox() {
   // replace with api call
   const simulateLLMResponse = async (userInput, userId) => {
     try {
-      const response = await fetch('http://127.0.0.1:5001/api/llm', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5001/api/llm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: userId, message: userInput }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response from backend:', errorText);
-        throw new Error('Failed to fetch response from LLM');
+        console.error("Error response from backend:", errorText);
+        throw new Error("Failed to fetch response from LLM");
       }
 
       const data = await response.json();
-      console.log('Received response from backend:', data);
+      console.log("Received response from backend:", data);
       return data.response;
     } catch (error) {
-      console.error('Error:', error);
-      return 'An error occurred. Please try again.';
+      console.error("Error:", error);
+      return "An error occurred. Please try again.";
     }
   };
 
@@ -86,10 +86,10 @@ export default function ChatBox() {
         <div
           style={{
             position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            width: "300px",
-            height: "400px",
+            top: "100px",
+            left: "0",
+            width: "100%",
+            height: "calc(100% - 100px)",
             backgroundColor: "var(--background)",
             border: "1px solid var(--text)",
             borderRadius: "8px",
@@ -111,7 +111,7 @@ export default function ChatBox() {
               alignItems: "center",
             }}
           >
-              {/*Chat box*/}
+            {/*Chat box*/}
             <span>Chat</span>
             <button
               onClick={toggleChat}
@@ -126,37 +126,46 @@ export default function ChatBox() {
               ✖
             </button>
           </div>
-              {/*Chat messages*/}
+          {/*Chat messages*/}
           <div
             style={{
               flex: 1,
               padding: "10px",
               overflowY: "auto",
               backgroundColor: "var(--background)",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                style={{
-                  marginBottom: "8px",
-                  textAlign: msg.sender === "user" ? "right" : "left",
-                }}
-              >
-                <span
+            <div style={{ width: "100%", maxWidth: "600px" }}>
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
                   style={{
-                    display: "inline-block",
-                    padding: "8px",
-                    borderRadius: "4px",
-                    backgroundColor: "var(--foreground)",
-                    color: "var(--background)",
+                    marginBottom: "8px",
+                    textAlign: msg.sender === "user" ? "right" : "left",
                   }}
                 >
-                  {msg.text}
-                </span>
-              </div>
-            ))}
-            <div ref={messagesEnd} />
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "8px",
+                      borderRadius: "4px",
+                      backgroundColor:
+                        msg.sender === "user" ? "var(--foreground)" : "#E0E0E0",
+                      color: msg.sender === "user" ? "#FFFFFF" : "#000000",
+                      maxWidth: "100%",
+                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                    }}
+                  >
+                    {msg.text}
+                  </span>
+                </div>
+              ))}
+              <div ref={messagesEnd} />
+            </div>
           </div>
 
           <div
