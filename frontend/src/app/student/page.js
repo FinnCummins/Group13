@@ -79,12 +79,12 @@ export default function StudentHomePage() {
                     <div>
                       <span
                         className={`px-3 py-1 rounded font-bold ${
-                          project.project_status === "taken"
+                          project.project_status.toLowerCase() === "taken"
                             ? "bg-red-500 text-white"
                             : "bg-green-500 text-white"
                         }`}
                       >
-                        {project.project_status === "taken" ? "Taken" : "Available"}
+                        {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
                       </span>
                     </div>
                   </div>
