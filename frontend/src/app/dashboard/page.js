@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Head from "next/head";
-import ProposalStatusNavbar from "@/components/ProposalStatusNavbar";
+import DashboardNavbar from "@/components/DashboardNavbar";
 
-export default function ProposalStatus() {
+export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
 
   return (
     <div>
       <Head>
-        <title>Proposal Status- Final Year Project Finder</title>
-        <meta name="description" content="Status of all student proposals" />
+        <title>Final Project Dashboard- Final Year Project Finder</title>
+        <meta name="description" content="Manage your Final Year Project" />
       </Head>
 
-      <ProposalStatusNavbar />
+      <DashboardNavbar />
 
       <footer className="text-center py-6 border-t border-[var(--foreground)]">
         <p>2025 Final Year Project Finder</p>
