@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
-import Link from "next/link";
+import { useState } from 'react';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function SupervisorNavbar() {
   const [navOpen, setNavOpen] = useState(false);
@@ -14,11 +14,7 @@ export default function SupervisorNavbar() {
     <div className="fixed top-0 w-full h-[100px] flex justify-between items-center px-4 bg-[var(--background)] text-[var(--text)] z-50 shadow">
       {/* Trinity Logo */}
       <div>
-        <img
-          src="/Trinity.jpg"
-          alt="Trinity Logo"
-          className="h-22 max-h-[100px] w-auto"
-        />
+        <img src="/Trinity.jpg" alt="Trinity Logo" className="h-22 max-h-[100px] w-auto" />
       </div>
 
       {/* Desktop Menu */}
@@ -30,7 +26,7 @@ export default function SupervisorNavbar() {
           <Link href="/addProject">Add Project</Link>
         </li>
         <li className="px-4">
-          <Link href="/editProject">Edit Project</Link>
+          <Link href="/manage-candidates">Manage Candidates</Link>
         </li>
         <li className="px-4">
           <Link href="/" onClick={handleLogout}>Logout</Link>
@@ -52,17 +48,17 @@ export default function SupervisorNavbar() {
       >
         <li className="py-6 text-4xl">
           <Link href="/supervisor" onClick={toggleNav}>
-            Supervisor Home
+          Supervisor Home
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="addProject" onClick={toggleNav}>
+          <Link href="/addProject" onClick={toggleNav}>
             Add Project
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="/editProject" onClick={toggleNav}>
-            Edit Project
+          <Link href="/manage-candidates" onClick={toggleNav}>
+            Manage Candidates
           </Link>
         </li>
         <li className="py-6 text-4xl">

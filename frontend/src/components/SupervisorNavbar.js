@@ -27,7 +27,7 @@ export default function SupervisorNavbar() {
           <Link href="/addProject">Add Project</Link>
         </li>
         <li className="px-4">
-          <Link href="edit-project">Edit Project</Link>
+          <Link href="/editProject">Edit Project</Link>
         </li>
         <li className="px-4">
           <Link href="/manage-candidates">Manage Candidates</Link>
@@ -51,12 +51,12 @@ export default function SupervisorNavbar() {
         }
       >
         <li className="py-6 text-4xl">
-          <Link href="addProject" onClick={toggleNav}>
+          <Link href="/addProject" onClick={toggleNav}>
             Add Project
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="edit-project" onClick={toggleNav}>
+          <Link href="/editProject" onClick={toggleNav}>
             Edit Project
           </Link>
         </li>

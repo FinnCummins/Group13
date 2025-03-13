@@ -23,10 +23,10 @@ export default function SupervisorNavbar() {
           <Link href="/supervisor">Supervisor Home</Link>
         </li>
         <li className="px-4">
-          <Link href="/supervisor/edit-project">Edit Project</Link>
+          <Link href="/editProject">Edit Project</Link>
         </li>
         <li className="px-4">
-          <Link href="/supervisor/manage-candidates">Manage Candidates</Link>
+          <Link href="/manage-candidates">Manage Candidates</Link>
         </li>
         <li className="px-4">
           <Link href="/" onClick={handleLogout}>Logout</Link>
@@ -52,12 +52,12 @@ export default function SupervisorNavbar() {
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="/supervisor/edit-project" onClick={toggleNav}>
+          <Link href="/editProject" onClick={toggleNav}>
             Edit Project
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="/supervisor/manage-candidates" onClick={toggleNav}>
+          <Link href="/manage-candidates" onClick={toggleNav}>
             Manage Candidates
           </Link>
         </li>
