@@ -6,6 +6,10 @@ export default function SupervisorNavbar() {
   const [navOpen, setNavOpen] = useState(false);
   const toggleNav = () => setNavOpen(!navOpen);
 
+  const handleLogout = () => {
+    localStorage.removeItem('userId'); // Remove userId from local storage
+  };
+
   return (
     <div className="fixed top-0 w-full h-[100px] flex justify-between items-center px-4 bg-[var(--background)] text-[var(--text)] z-50 shadow">
       {/* Trinity Logo */}
@@ -27,6 +31,9 @@ export default function SupervisorNavbar() {
         </li>
         <li className="px-4">
           <Link href="/manage-candidates">Manage Candidates</Link>
+        </li>
+        <li className="px-4">
+          <Link href="/" onClick={handleLogout}>Logout</Link>
         </li>
       </ul>
 
@@ -57,6 +64,9 @@ export default function SupervisorNavbar() {
           <Link href="/manage-candidates" onClick={toggleNav}>
             Manage Candidates
           </Link>
+        </li>
+        <li className="py-6 text-4xl">
+          <Link href="/" onClick={() => { toggleNav(); handleLogout(); }}>Logout</Link>
         </li>
       </ul>
     </div>
