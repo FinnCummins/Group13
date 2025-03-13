@@ -20,13 +20,13 @@ export default function SupervisorNavbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex">
         <li className="px-4">
+          <Link href="/supervisor">Supervisor Dashboard</Link>
+        </li>
+        <li className="px-4">
           <Link href="/addProject">Add Project</Link>
         </li>
         <li className="px-4">
           <Link href="edit-project">Edit Project</Link>
-        </li>
-        <li className="px-4">
-          <Link href="/manage-candidates">Manage Candidates</Link>
         </li>
       </ul>
 
@@ -44,6 +44,11 @@ export default function SupervisorNavbar() {
         }
       >
         <li className="py-6 text-4xl">
+          <Link href="/supervisor" onClick={toggleNav}>
+            Supervisor Dashboard
+          </Link>
+        </li>
+        <li className="py-6 text-4xl">
           <Link href="addProject" onClick={toggleNav}>
             Add Project
           </Link>
@@ -51,11 +56,6 @@ export default function SupervisorNavbar() {
         <li className="py-6 text-4xl">
           <Link href="edit-project" onClick={toggleNav}>
             Edit Project
-          </Link>
-        </li>
-        <li className="py-6 text-4xl">
-          <Link href="/manage-candidates" onClick={toggleNav}>
-            Manage Candidates
           </Link>
         </li>
       </ul>
