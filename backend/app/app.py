@@ -2,20 +2,27 @@ from flask import Flask, request, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
 import os
+
+# Import blueprints
 from user import user_bp
 from project import project_bp
 from llm import llm_bp
 from vector_db import vector_bp
-from models import db
+from models import db, Supervisor
 
 app = Flask(__name__)
 CORS(app)
+mail = Mail(app)
 
+# App configuration
 app.config["JWT_SECRET_KEY"] = "super_secret_key_123"
-app.config['SECRET_KEY'] = 'my_secret_key'  # Needed for session management
+app.config['SECRET_KEY'] = 'my_secret_key'
 app.config['SESSION_COOKIE_NAME'] = 'login_session'
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://myuser:mypassword@localhost/mydatabase"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 jwt = JWTManager(app)
 
@@ -64,6 +71,40 @@ def authorize():
     # we can handle user data here as per our application's needs
     return jsonify(profile)
 
+
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.example.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'your-email@example.com'
+app.config['MAIL_PASSWORD'] = 'your-password'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail.init_app(app)
+jwt = JWTManager(app)
+@app.route('/email_supervisor', methods=['POST'])
+def email_supervisor():
+    
+    data = request.get_json()
+    student_id = data['student_id']
+    supervisor_id = data['supervisor_id']
+    message_content = data['message']
+
+    supervisor = Supervisor.query.get(supervisor_id)
+    if not supervisor:
+        return jsonify({'error': 'Supervisor not found'}), 404
+
+    msg = Message("Message from Student",
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[supervisor.email])
+    msg.body = f"Hello {supervisor.first_name},\n\n{message_content}\n\nBest Regards,"
+    try:
+        mail.send(msg)
+        return jsonify({'message': 'Email sent successfully to your supervisor.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(project_bp, url_prefix='/api')
 app.register_blueprint(llm_bp, url_prefix='/api')
@@ -71,3 +112,11 @@ app.register_blueprint(vector_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run()
+
+
+
+
+
+
+
+
