@@ -1,10 +1,9 @@
-import os
-from openai import OpenAI
 from flask import Blueprint, request, jsonify, Response
 from models import ChatbotHistory, db
 from user import get_user_interests
 #from project import get_projects
 from models import Student
+from open_ai import get_embedding, call_open_ai
 
 llm_bp = Blueprint('llm', __name__)
 
@@ -132,34 +131,6 @@ def generate_project_embedding(data):
             {"namespace": "projectNS1", "vector_id": data["id"], "vector": embedding, "metadata": metadata}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-def call_open_ai(prompt):
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    client = OpenAI(api_key=openai_api_key)
-
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return completion.choices[0].message.content
-    except Exception as e:
-        print(f"Error in OpenAI API call: {e}")
-        raise
-
-
-def get_embedding(text):
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    client = OpenAI(api_key=openai_api_key)
-
-    response = client.embeddings.create(
-        model="text-embedding-ada-002",
-        input=text
-    )
-
-    embedding_vector = response.data[0].embedding
-    return embedding_vector
 
 
 def initial_prompt(user_id, top_k=10):

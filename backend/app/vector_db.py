@@ -3,6 +3,8 @@ import os
 import numpy as np
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
+import openai
+from open_ai import get_embedding
 
 vector_bp = Blueprint('vector', __name__)
 
@@ -11,7 +13,6 @@ load_dotenv()
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 if not pinecone_api_key:
     raise ValueError("PINECONE_API_KEY is not set. Please check your .env file or environment variables.")
-
 pc = Pinecone(api_key=pinecone_api_key)
 
 index_name = "final-year-project"
@@ -56,9 +57,9 @@ def upsert_vector(data):
         return jsonify({
             "error": f"Vector dimension mismatch. Expected: {expected_dimension}, got: {len(data['vector'])}"
         }), 400
-    
-    namespace = data.get("namespace", "ns1")
-    
+
+    namespace = data.get("namespace", "projects")
+
     try:
         vector_data = [(str(data["vector_id"]), data["vector"], data["metadata"])]
         index.upsert(vectors=vector_data, namespace=namespace)
@@ -81,12 +82,14 @@ def query_vectors(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
-    if "vector" not in data:
-        return jsonify({"error": "Missing field: vector"}), 400
-    
+    if "text" not in data:
+        return jsonify({"error": "Missing field: text"}), 400
+
+    vector = get_embedding(data["text"])
+
     expected_dimension = vector_dimension
     
-    if not validate_vector(data["vector"], expected_dimension):
+    if not validate_vector(vector, expected_dimension):
         return jsonify({
             "error": f"Vector dimension mismatch. Expected: {expected_dimension}, got: {len(data['vector'])}"
         }), 400
@@ -100,7 +103,7 @@ def query_vectors(data):
     try:
         response = index.query(
             namespace=namespace,
-            vector=data["vector"],
+            vector=vector,
             top_k=top_k,
             include_values=include_values,
             include_metadata=include_metadata,
