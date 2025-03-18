@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
 import datetime
@@ -6,9 +7,11 @@ import re
 from openai import OpenAI
 import ast
 
+load_dotenv()
+
 def call_open_ai(prompt):
     openai_api_key = os.getenv("OPENAI_API_KEY")
-    client = OpenAI(openai_api_key)
+    client = OpenAI(api_key=openai_api_key)
     
     try:
         completion = client.chat.completions.create(
@@ -93,17 +96,12 @@ def collect_project_details(url):
 
     response = call_open_ai(prompt)
 
-    print(f"Project: {project_info['project_title']}")
-    print(f"Project description: {project_info['project_description']}")
-    print(f"Response: {response}")
-
     result_list = ast.literal_eval(response)
 
-    print(f"Result list: {result_list}")
     project_info['keywords'] = result_list
 
     prompt = f"""
-        I am now going to give you a project title and project descriptio
+        I am now going to give you a project title and project description
 
         I want you to read both and determine whether the project has already been taken.
 
@@ -122,14 +120,35 @@ def collect_project_details(url):
 
     response = call_open_ai(prompt)
 
-    print(f"Project: {project_info['project_title']}")
-    print(f"Project description: {project_info['project_description']}")
-    print(f"Response: {response}")
+    result_list = ast.literal_eval(response)
+
+    project_info['project_status'] = result_list[0]
+
+    prompt = f"""
+        I am now going to give you a project title
+
+        I want you to read it and if you find any tags such as "TAKEN" or "This project has been taken" in the title, please remove them.
+
+        Some professors have indicated that a project has been taken by saying "This project has been taken" or maybe they input "["TAKEN"]" in the title or description.
+        All professors do this in different ways so please read the project title carefully.
+
+        If the project has such tags, please remove them and return the cleaned title.
+
+        Please return it as a string in a python list like this: ["Cleaned project title"]
+
+        Project title: {project_info['project_title']}
+
+        Please do not print anything else in the response. Just that list with one item.
+    """
+
+    response = call_open_ai(prompt)
 
     result_list = ast.literal_eval(response)
 
-    print(f"Result list: {result_list}")
-    project_info['project_status'] = result_list[0]
+    print(f"Before: {project_info['project_title']}")
+    print(f"After: {result_list[0]}")
+
+    project_info['project_title'] = result_list[0]
 
     return project_info
 
