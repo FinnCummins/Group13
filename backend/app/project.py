@@ -3,7 +3,7 @@ from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
 from vector_db import upsert_vector, query_vectors
-from llm import generate_project_embedding, get_embedding
+from llm import generate_project_embedding
 from models import Project, db
 
 project_bp = Blueprint('project', __name__)
@@ -74,7 +74,7 @@ def get_projects():
         results.append(project_data)
     return jsonify(results), 200
 
-# TODO: Associate interests with user session
+
 @project_bp.route('/search_vectorized_projects', methods=['POST'])
 def search_vectorized_projects():
     data = request.get_json()
@@ -88,13 +88,15 @@ def search_vectorized_projects():
     interests = data.get("interests", ["unknown"])
     top_k = data.get("top_k", 5)
 
-    embedded_message = get_embedding("interests: " + ", ".join(interests) + data["message"])
+    # TODO: Associate interests with user session
+    text = "interests: " + ", ".join(interests) + "; " + data["message"]
 
-    query_params = {"namespace": "projectNS1",
+    # TODO: fix mess of namespaces
+    query_params = {"namespace": "projects",
                     "top_k": top_k,
                     "include_values": False,
                     "include_metadata": True,
-                    "vector": embedded_message
+                    "text": text
                     }
 
     if project_status:

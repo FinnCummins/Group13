@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
 import requests
-from openai import OpenAI
 from dotenv import load_dotenv
+from backend.app.open_ai import get_embedding
 
 # Load environment variables
 load_dotenv()
@@ -11,9 +11,6 @@ load_dotenv()
 PROJECTS_API_URL = os.getenv("PROJECTS_API_URL", "http://127.0.0.1:5001/api/projects")
 VECTOR_API_URL = os.getenv("VECTOR_API_URL", "http://127.0.0.1:5001/api/upsert")
 
-# Configure OpenAI API
-openai_api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=openai_api_key)
 
 def get_all_projects():
     """Fetch all projects using the Flask API endpoint"""
@@ -31,20 +28,8 @@ def get_all_projects():
         print(f"Error retrieving projects: {e}")
         return []
 
-def generate_embedding(text):
-    """Generate embedding vector for the given text using OpenAI API"""
-    try:
-        response = client.embeddings.create(
-            model="text-embedding-3-large",
-            input=text,
-            dimensions=1536
-        )
-        return response.data[0].embedding
-    except Exception as e:
-        print(f"Error generating embedding: {e}")
-        return None
 
-def upsert_to_vector_db(vector_id, vector, metadata, namespace="keywords"):
+def upsert_to_vector_db(vector_id, vector, metadata, namespace="projects"):
     """Upsert vector to Pinecone database"""
     payload = {
         "vector_id": vector_id,
@@ -76,10 +61,12 @@ def upsert_all_projects():
     for project in projects:
         # Create text content for embedding
         # Combine title and description for a richer semantic representation
-        content_to_embed = f"{project['keywords']}"
-        
+        content_to_embed = "title: " + project["project_title"] + "; description: " + project["project_description"]
+        if 'keywords' in project:
+            content_to_embed += "; keywords: " + ", ".join(project['keywords'])
+
         # Generate embedding
-        vector = generate_embedding(content_to_embed)
+        vector = get_embedding(content_to_embed)
         if not vector:
             print(f"Skipping project {project['id']} due to embedding generation failure")
             failure_count += 1
@@ -96,7 +83,7 @@ def upsert_all_projects():
         }
         
         # Use project ID as vector ID for easy reference
-        vector_id = f"project-{project['id']}"
+        vector_id = project['id']
         
         # Upsert to vector database
         if upsert_to_vector_db(vector_id, vector, metadata):

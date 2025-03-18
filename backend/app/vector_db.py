@@ -4,19 +4,15 @@ import numpy as np
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
 import openai
+from open_ai import get_embedding
 
 vector_bp = Blueprint('vector', __name__)
 
 load_dotenv()
 
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
 if not pinecone_api_key:
     raise ValueError("PINECONE_API_KEY is not set. Please check your .env file or environment variables.")
-if not openai_api_key:
-    raise ValueError("OPENAI_API_KEY is not set. Please check your .env file or environment variables.")
-
 pc = Pinecone(api_key=pinecone_api_key)
 
 index_name = "final-year-project"
@@ -33,17 +29,6 @@ if index_name not in pc.list_indexes().names():
 
 index = pc.Index(index_name)
 
-def get_text_embedding(text):
-    """Generate embeddings using OpenAI's text-embedding-ada-002 model."""
-    try:
-        client = openai.OpenAI(api_key=openai_api_key)  # Use new OpenAI client
-        response = client.embeddings.create(
-            input=text,
-            model="text-embedding-ada-002"
-        )
-        return response.data[0].embedding  # Access embedding with new format
-    except Exception as e:
-        raise RuntimeError(f"Error generating embedding: {str(e)}")
 
 def validate_vector(vector, expected_dimension):
     if len(vector) != expected_dimension:
@@ -72,9 +57,9 @@ def upsert_vector(data):
         return jsonify({
             "error": f"Vector dimension mismatch. Expected: {expected_dimension}, got: {len(data['vector'])}"
         }), 400
-    
-    namespace = data.get("namespace", "ns1")
-    
+
+    namespace = data.get("namespace", "projects")
+
     try:
         vector_data = [(str(data["vector_id"]), data["vector"], data["metadata"])]
         index.upsert(vectors=vector_data, namespace=namespace)
@@ -90,13 +75,17 @@ def upsert_vector(data):
 @vector_bp.route('/query', methods=['POST'])
 def query():
     data = request.get_json()
+    return query_vectors(data)
+
+
+def query_vectors(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
     if "text" not in data:
         return jsonify({"error": "Missing field: text"}), 400
-    
-    vector = get_text_embedding(data["text"])
+
+    vector = get_embedding(data["text"])
 
     expected_dimension = vector_dimension
     
