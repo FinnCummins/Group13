@@ -158,6 +158,9 @@ def delete_vectors():
 @vector_bp.route('/upsert_project', methods=['POST'])
 def upsert_project():
     data = request.get_json()
+    return upsert_project_data(data)
+
+def upsert_project_data(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
 

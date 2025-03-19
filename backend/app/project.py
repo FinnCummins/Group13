@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
-from vector_db import query_vectors
+from vector_db import query_vectors, upsert_project_data
 from models import Project, db
 
 project_bp = Blueprint('project', __name__)
@@ -34,8 +34,10 @@ def create_project():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-    #if not upsert_project(new_project):
-    #    return jsonify({"error upserting project to vector database"}), 400
+    data = get_project(new_project.id)[0].get_json()
+    response, status = upsert_project_data(data)
+    if status != 200:
+        return jsonify({"error upserting project to vector database"}), 400
 
     return jsonify({"message": "Project created", "project_id": new_project.id}), 200
 
