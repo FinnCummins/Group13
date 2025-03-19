@@ -104,35 +104,6 @@ def embed_text():
         return jsonify({"error": str(e)}), 500
 
 
-@llm_bp.route('/embedProject', methods=['POST'])
-def embed_project():
-    data = request.get_json()
-    return generate_project_embedding(data)
-
-
-def generate_project_embedding(data):
-    if not data:
-        return jsonify({"error": "No input data provided"}), 400
-
-    required_fields = ["project_title", "project_description", "project_status", "id"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"Missing field: {field}"}), 400
-
-    text_to_embed = "title: " + data["project_title"] + "; description: " + data["project_description"]
-
-    if 'keywords' in data:
-        text_to_embed += "; keywords: " + ", ".join(data['keywords'])
-
-    try:
-        embedding = get_embedding(text_to_embed)
-        metadata = {"project_status": data["project_status"], "project_title": data["project_title"]}
-        return jsonify(
-            {"namespace": "projectNS1", "vector_id": data["id"], "vector": embedding, "metadata": metadata}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 def initial_prompt(user_id, top_k=10):
     interests = get_user_interests(Student, user_id)
     projects = []#get_projects()[0].get_json()

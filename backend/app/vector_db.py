@@ -39,10 +39,6 @@ def validate_vector(vector, expected_dimension):
 @vector_bp.route('/upsert', methods=['POST'])
 def upsert():
     data = request.get_json()
-    return upsert_vector(data)
-
-
-def upsert_vector(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
@@ -155,3 +151,4 @@ def delete_vectors():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
