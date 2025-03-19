@@ -74,6 +74,23 @@ def get_projects():
         results.append(project_data)
     return jsonify(results), 200
 
+@project_bp.route('/projects/<int:project_id>', methods=['GET'])
+def get_project(project_id):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({'message': 'Project not found'}), 404
+
+    project_data = {
+        "id": project.id,
+        "project_title": project.project_title,
+        "project_description": project.project_description,
+        "keywords": project.keywords,
+        "project_status": project.project_status,
+        "supervisor_id": project.supervisor_id
+    }
+
+    return jsonify(project_data), 200
+
 
 @project_bp.route('/search_vectorized_projects', methods=['POST'])
 def search_vectorized_projects():
