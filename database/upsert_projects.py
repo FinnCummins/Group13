@@ -2,17 +2,13 @@
 import os
 import requests
 from dotenv import load_dotenv
-from backend.app.open_ai import get_embedding
-from flask import Blueprint, request, jsonify
-
 
 # Load environment variables
 load_dotenv()
 
 # Configure API endpoints
 PROJECTS_API_URL = os.getenv("PROJECTS_API_URL", "http://127.0.0.1:5001/api/projects")
-VECTOR_API_URL = os.getenv("VECTOR_API_URL", "http://127.0.0.1:5001/api/upsert")
-
+UPSERT_PROJECT_API_URL = os.getenv("UPSERT_PROJECT_API_URL", "http://127.0.0.1:5001/api/upsert_project")
 
 def get_all_projects():
     """Fetch all projects using the Flask API endpoint"""
@@ -31,68 +27,26 @@ def get_all_projects():
         return []
 
 
-def upsert_project(project, namespace="projects"):
-    """Upsert vector to Pinecone database"""
-    # Prepare metadata
-    metadata = {
-        "project_id": project['id'],
-        "project_status": project['project_status'],
-        "supervisor_id": project['supervisor_id'],
-        "keywords": project.get('keywords', [])
-    }
-
-    # Use project ID as vector ID for easy reference
-    vector_id = project['id']
-
-    content_to_embed = "title: " + project["project_title"] + "; description: " + project["project_description"]
-    if 'keywords' in project:
-        content_to_embed += "; keywords: " + ", ".join(project['keywords'])
-
-    # Generate embedding
-    vector = get_embedding(content_to_embed)
-    if not vector:
-        print(f"Error generating embedding for project {vector_id}")
-        return False
-
-    payload = {
-        "vector_id": vector_id,
-        "vector": vector,
-        "metadata": metadata,
-        "namespace": namespace
-    }
-    
-    try:
-        response = requests.post(VECTOR_API_URL, json=payload)
-        if response.status_code == 200:
-            print(f"Successfully upserted vector for project {vector_id}")
-            return True
-        else:
-            print(f"Failed to upsert vector: {response.json()}")
-            return False
-    except Exception as e:
-        print(f"Error upserting vector: {e}")
-        return False
-
-
-def upsert_projects(projects, namespace="projects"):
-    success_count = 0
-    failure_count = 0
-    
-    for project in projects:
-        # Upsert to vector database
-        if upsert_project(project, namespace):
-            success_count += 1
-        else:
-            failure_count += 1
-    
-    print(f"Upsert complete. Success: {success_count}, Failures: {failure_count}")
-    return success_count, failure_count
-
 def upsert_all_projects():
     """Fetch all projects via API and upsert them to the vector database"""
     projects = get_all_projects()
     print(f"Found {len(projects)} projects to process")
-    success_count, failure_count = upsert_projects(projects)
+
+    success_count = 0
+    failure_count = 0
+
+    for project in projects:
+        # Upsert to vector database
+        response = requests.post(UPSERT_PROJECT_API_URL, json=project)
+
+        if response.status_code == 200:
+            success_count += 1
+            print(f"Successfully upserted project {project['id']}")
+        else:
+            failure_count += 1
+            print(f"Error upserting project {project['id']}: {response.text}")
+
+    print(f"Upsert complete. Success: {success_count}, Failures: {failure_count}")
     return success_count, failure_count
 
 if __name__ == "__main__":
