@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 flask_sqlalchemy
+Flask_Mail
 python-dotenv
 openai
 psycopg2-binary
@@ -9,3 +10,5 @@ flask_jwt_extended
 flask_cors
 pinecone
 numpy
+authlib
+requests
