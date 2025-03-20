@@ -1,9 +1,7 @@
 from flask import Blueprint, request, jsonify
 import os
-import numpy as np
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
-import openai
 from open_ai import get_embedding
 
 vector_bp = Blueprint('vector', __name__)
@@ -39,20 +37,20 @@ def validate_vector(vector, expected_dimension):
 @vector_bp.route('/upsert', methods=['POST'])
 def upsert():
     data = request.get_json()
-    return upsert_vector(data)
+    return upsert_data(data)
 
 
-def upsert_vector(data):
+def upsert_data(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
-    
+
     required_fields = ["vector_id", "vector", "metadata"]
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
-    
+
     expected_dimension = vector_dimension
-    
+
     if not validate_vector(data["vector"], expected_dimension):
         return jsonify({
             "error": f"Vector dimension mismatch. Expected: {expected_dimension}, got: {len(data['vector'])}"
@@ -81,25 +79,25 @@ def query():
 def query_vectors(data):
     if not data:
         return jsonify({"error": "No input data provided"}), 400
-    
+
     if "text" not in data:
         return jsonify({"error": "Missing field: text"}), 400
 
     vector = get_embedding(data["text"])
 
     expected_dimension = vector_dimension
-    
+
     if not validate_vector(vector, expected_dimension):
         return jsonify({
             "error": f"Vector dimension mismatch. Expected: {expected_dimension}, got: {len(data['vector'])}"
         }), 400
-    
+
     namespace = data.get("namespace", "default")
     top_k = data.get("top_k", 10)
     include_values = data.get("include_values", True)
     include_metadata = data.get("include_metadata", True)
     filter_query = data.get("filter", None)
-    
+
     try:
         response = index.query(
             namespace=namespace,
@@ -109,22 +107,22 @@ def query_vectors(data):
             include_metadata=include_metadata,
             filter=filter_query
         )
-        
+
         matches = []
         for match in response.matches:
             match_data = {
                 "id": match.id,
                 "score": float(match.score)
             }
-            
+
             if hasattr(match, 'metadata') and match.metadata:
                 match_data["metadata"] = match.metadata
-                
+
             if hasattr(match, 'values') and match.values:
                 match_data["values"] = [float(v) for v in match.values]
-                
+
             matches.append(match_data)
-            
+
         return jsonify({
             "matches": matches,
             "namespace": namespace
@@ -138,15 +136,15 @@ def delete_vectors():
     data = request.get_json()
     if not data:
         return jsonify({"error": "No input data provided"}), 400
-    
+
     if "vector_ids" not in data:
         return jsonify({"error": "Missing field: vector_ids"}), 400
-    
+
     if not isinstance(data["vector_ids"], list) or len(data["vector_ids"]) == 0:
         return jsonify({"error": "vector_ids must be a non-empty list"}), 400
-    
+
     namespace = data.get("namespace", "default")
-    
+
     try:
         index.delete(ids=data["vector_ids"], namespace=namespace)
         return jsonify({
@@ -155,3 +153,39 @@ def delete_vectors():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@vector_bp.route('/upsert_project', methods=['POST'])
+def upsert_project():
+    data = request.get_json()
+    return upsert_project_data(data)
+
+def upsert_project_data(data):
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    # Prepare metadata
+    metadata = {
+        "project_id": data['id'],
+        "project_status": data['project_status'],
+        "supervisor_id": data['supervisor_id'],
+        "keywords": data.get('keywords', [])
+    }
+
+    content_to_embed = "title: " + data["project_title"] + "; description: " + data["project_description"]
+    if 'keywords' in data:
+        content_to_embed += "; keywords: " + ", ".join(data['keywords'])
+
+    # Generate embedding
+    vector = get_embedding(content_to_embed)
+    if not vector:
+        return jsonify({f"Error generating embedding for project {data['id']}"}), 400
+
+    payload = {
+        "vector_id": data["id"],
+        "vector": vector,
+        "metadata": metadata,
+        "namespace": data.get("namespace", "projects")
+    }
+
+    return upsert_data(payload)
