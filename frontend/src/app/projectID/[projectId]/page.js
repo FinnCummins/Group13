@@ -56,9 +56,6 @@ export default function ProjectDetails() {
 
             <div className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex flex-col justify-between items-start border border-[var(--foreground)]">
               <div>
-                <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                  {project.project_title}
-                </h2>
                 <p className="text-[var(--text)] mb-4">
                   {project.project_description}
                 </p>

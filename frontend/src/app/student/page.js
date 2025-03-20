@@ -66,21 +66,6 @@ export default function StudentHomePage() {
                         <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
                           {project.project_title}
                         </h2>
-                        <p className="text-[var(--text)] mb-4">
-                          {project.project_description}
-                        </p>
-                        {project.keywords && project.keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {project.keywords.map((keyword, index) => (
-                              <span
-                                key={index}
-                                className="bg-[var(--foreground)]/20 text-[var(--foreground)] text-sm font-medium px-3 py-1 rounded-full"
-                              >
-                                {keyword}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                       <div>
                         <span
