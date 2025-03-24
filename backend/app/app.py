@@ -8,6 +8,7 @@ from project import project_bp
 from llm import llm_bp
 from vector_db import vector_bp
 from models import db
+from project_requests import project_requests_bp
 
 app = Flask(__name__)
 
@@ -37,6 +38,7 @@ app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(project_bp, url_prefix='/api')
 app.register_blueprint(llm_bp, url_prefix='/api')
 app.register_blueprint(vector_bp, url_prefix='/api')
+app.register_blueprint(project_requests_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run()
