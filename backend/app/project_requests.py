@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import db, Project, Student, Supervisor
+from sqlalchemy import text
 
 project_requests_bp = Blueprint('project_requests', __name__)
 
@@ -30,7 +31,7 @@ def create_request():
 
     # Check if request already exists
     existing_request = db.session.execute(
-        "SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id",
+        text("SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id"),
         {"student_id": data["student_id"], "project_id": data["project_id"]}
     ).first()
     if existing_request:
@@ -38,10 +39,10 @@ def create_request():
 
     try:
         db.session.execute(
-            """
+            text("""
             INSERT INTO requests (student_id, supervisor_id, project_id, status)
             VALUES (:student_id, :supervisor_id, :project_id, 'pending')
-            """,
+            """),
             {
                 "student_id": data["student_id"],
                 "supervisor_id": data["supervisor_id"],
@@ -62,24 +63,28 @@ def get_requests():
     project_id = request.args.get('project_id', type=int)
     status = request.args.get('status')
 
-    query = "SELECT * FROM requests WHERE 1=1"
+    base_query = "SELECT * FROM requests WHERE 1=1"
+    conditions = []
     params = {}
 
     if student_id:
-        query += " AND student_id = :student_id"
+        conditions.append("student_id = :student_id")
         params["student_id"] = student_id
     if supervisor_id:
-        query += " AND supervisor_id = :supervisor_id"
+        conditions.append("supervisor_id = :supervisor_id")
         params["supervisor_id"] = supervisor_id
     if project_id:
-        query += " AND project_id = :project_id"
+        conditions.append("project_id = :project_id")
         params["project_id"] = project_id
     if status:
-        query += " AND status = :status"
+        conditions.append("status = :status")
         params["status"] = status
 
+    if conditions:
+        base_query += " AND " + " AND ".join(conditions)
+
     try:
-        requests = db.session.execute(query, params).fetchall()
+        requests = db.session.execute(text(base_query), params).fetchall()
         results = []
         for req in requests:
             results.append({
