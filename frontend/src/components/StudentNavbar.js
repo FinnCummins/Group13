@@ -8,6 +8,12 @@ export default function StudentNavbar() {
 
   const handleLogout = () => {
     localStorage.removeItem('userId'); // Remove userId from local storage
+    localStorage.removeItem('projectId'); // Remove projectId from local storage
+  };
+
+  const handleNavClick = () => {
+    localStorage.removeItem('projectId'); // Remove projectId from local storage
+    toggleNav();
   };
 
   return (
@@ -20,10 +26,10 @@ export default function StudentNavbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex">
         <li className="px-4">
-          <Link href="/status">Proposal Status</Link>
+          <Link href="/status" onClick={handleNavClick}>Proposal Status</Link>
         </li>
         <li className="px-4">
-          <Link href="/dashboard">Final Project Dashboard</Link>
+          <Link href="/dashboard" onClick={handleNavClick}>Final Project Dashboard</Link>
         </li>
         <li className="px-4">
           <Link href="/" onClick={handleLogout}>Logout</Link>
