@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import StudentNavbar from "@/components/StudentNavbar";
 import ChatBox from "@/components/ChatBox";
@@ -9,17 +9,10 @@ import Link from "next/link";
 export default function StudentHomePage() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
-
-  const handleProjectClick = (projectId) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('projectId', projectId);
-    }
-  };
-
-  const [isMounted, setIsMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
@@ -37,6 +30,16 @@ export default function StudentHomePage() {
     }
     fetchProjects();
   }, []);
+
+  const handleProjectClick = useCallback((projectId) => {
+    if (isClient) {
+      localStorage.setItem('projectId', projectId);
+    }
+  }, [isClient]);
+
+  if (!isClient) {
+    return <div>Loading...</div>; // Or any loading state you prefer
+  }
 
   return (
     <div>
@@ -60,7 +63,9 @@ export default function StudentHomePage() {
               </p>
             )}
 
-            {isMounted && projects.length > 0 && (
+            {projects.length === 0 ? (
+              <p className="text-center">No projects available</p>
+            ) : (
               <div className="space-y-8">
                 {projects.map((project) => (
                   <Link href={`/projectID/${project.id}`} key={project.id}>
@@ -89,13 +94,9 @@ export default function StudentHomePage() {
                 ))}
               </div>
             )}
-            
-            {!isMounted && <p>Loading...</p>}
-            {isMounted && projects.length === 0 && <p>No projects available</p>}
           </div>
           <ChatBox />
         </section>
-        
       </main>
 
       <footer className="text-center py-6 border-t border-[var(--foreground)]">
