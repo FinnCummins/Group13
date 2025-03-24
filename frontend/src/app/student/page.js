@@ -38,7 +38,7 @@ export default function StudentHomePage() {
   }, [isClient]);
 
   if (!isClient) {
-    return <div>Loading...</div>; // Or any loading state you prefer
+    return <div>Loading...</div>;
   }
 
   return (
