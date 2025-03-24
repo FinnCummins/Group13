@@ -10,6 +10,18 @@ export default function StudentHomePage() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
 
+  const handleProjectClick = (projectId) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('projectId', projectId);
+    }
+  };
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     async function fetchProjects() {
       try {
@@ -25,10 +37,6 @@ export default function StudentHomePage() {
     }
     fetchProjects();
   }, []);
-
-  const handleProjectClick = (projectId) => {
-    localStorage.setItem('projectId', projectId);
-  };
 
   return (
     <div>
@@ -52,9 +60,7 @@ export default function StudentHomePage() {
               </p>
             )}
 
-            {projects.length === 0 ? (
-              <p className="text-center">No projects available</p>
-            ) : (
+            {isMounted && projects.length > 0 && (
               <div className="space-y-8">
                 {projects.map((project) => (
                   <Link href={`/projectID/${project.id}`} key={project.id}>
@@ -83,6 +89,9 @@ export default function StudentHomePage() {
                 ))}
               </div>
             )}
+            
+            {!isMounted && <p>Loading...</p>}
+            {isMounted && projects.length === 0 && <p>No projects available</p>}
           </div>
           <ChatBox />
         </section>
