@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import StudentNavbar from "@/components/StudentNavbar";
 import ChatBox from "@/components/ChatBox";
@@ -9,6 +9,11 @@ import Link from "next/link";
 export default function StudentHomePage() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -26,9 +31,15 @@ export default function StudentHomePage() {
     fetchProjects();
   }, []);
 
-  const handleProjectClick = (projectId) => {
-    localStorage.setItem('projectId', projectId);
-  };
+  const handleProjectClick = useCallback((projectId) => {
+    if (isClient) {
+      localStorage.setItem('projectId', projectId);
+    }
+  }, [isClient]);
+
+  if (!isClient) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
