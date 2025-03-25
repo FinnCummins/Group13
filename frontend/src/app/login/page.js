@@ -25,6 +25,10 @@ export default function Login() {
   }
 
   const handleLogin = async (url) => {
+    setTouched({
+      email: true,
+      password: true,
+    });
     setError("");
     try {
       const response = await fetch(url, {
@@ -96,7 +100,12 @@ export default function Login() {
                 Email
               </label>
               <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                  ${
+                    touched.email && (!email || !isEmailValid())
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 id="email"
                 type="text"
                 placeholder="janedoe@tcd.ie"
@@ -123,7 +132,8 @@ export default function Login() {
                 Password
               </label>
               <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline
+                  ${touched.password && !password ? "border-red-500" : ""}`}
                 id="password"
                 type="password"
                 placeholder="******************"

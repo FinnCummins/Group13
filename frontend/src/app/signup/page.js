@@ -44,6 +44,10 @@ export default function Signup() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
   const handleSignup = async (url) => {
+    setTouched({
+      email: true,
+      password: true,
+    });
     setError("");
     try {
       console.log("Sending request to: {url}");
@@ -196,7 +200,7 @@ export default function Signup() {
                 required
                 onBlur={() => handleBlur("password")}
               />
-              {!password && (
+              {!password && touched.password && (
                 <p className="text-red-500 text-xs italic">
                   Please enter a valid password
                 </p>

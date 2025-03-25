@@ -13,6 +13,10 @@ export default function AddProjectPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const [touched, setTouched] = useState({
+    projectTitle: false,
+    projectDescription: false,
+  });
 
   useEffect(() => {
     setIsClient(true);
@@ -22,10 +26,23 @@ export default function AddProjectPage() {
     return null;
   }
 
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   const handleSubmit = async (e) => {
+    setTouched({
+      projectTitle: true,
+      projectDescription: true,
+    });
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    if (!projectTitle || !projectDescription) {
+      setError("Please fill in all required fields");
+      return;
+    }
 
     const keywordsArray = keywords
       .split(",")
@@ -35,7 +52,7 @@ export default function AddProjectPage() {
     const projectData = {
       project_title: projectTitle,
       project_description: projectDescription,
-      supervisor_id: 1, 
+      supervisor_id: 1,
       keywords: keywordsArray,
     };
 
@@ -84,13 +101,14 @@ export default function AddProjectPage() {
           <form
             className="max-w-md mx-auto bg-white p-8 rounded shadow-md"
             onSubmit={handleSubmit}
+            noValidate
           >
             <div className="mb-4">
               <label
                 className="block text-left text-gray-700 text-sm font-bold mb-2"
                 htmlFor="projectTitle"
               >
-                Project Title
+                Project Title<span className="text-red-500">*</span>
               </label>
               <input
                 id="projectTitle"
@@ -98,9 +116,20 @@ export default function AddProjectPage() {
                 placeholder="Enter project title"
                 value={projectTitle}
                 onChange={(e) => setProjectTitle(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                onBlur={() => handleBlur("projectTitle")}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                  ${
+                    touched.projectTitle && !projectTitle
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 required
               />
+              {touched.projectTitle && !projectTitle && (
+                <p className="text-red-500 text-xs italic mt-1">
+                  Project title is required
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -108,16 +137,27 @@ export default function AddProjectPage() {
                 className="block text-left text-gray-700 text-sm font-bold mb-2"
                 htmlFor="projectDescription"
               >
-                Project Description
+                Project Description<span className="text-red-500">*</span>
               </label>
               <textarea
                 id="projectDescription"
                 placeholder="Enter project description"
                 value={projectDescription}
                 onChange={(e) => setProjectDescription(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                onBlur={() => handleBlur("projectDescription")}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                  ${
+                    touched.projectDescription && !projectDescription
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 required
               ></textarea>
+              {touched.projectDescription && !projectDescription && (
+                <p className="text-red-500 text-xs italic mt-1">
+                  Project description is required
+                </p>
+              )}
             </div>
 
             <div className="mb-6">
