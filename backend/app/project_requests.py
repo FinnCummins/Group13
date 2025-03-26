@@ -1,3 +1,4 @@
+import requests
 from flask import Blueprint, request, jsonify
 from app.models import db, Project, Student, Supervisor
 from sqlalchemy import text
