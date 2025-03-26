@@ -24,14 +24,15 @@ export default function Login() {
     return null;
   }
 
-  const handleLogin = async (url) => {
+  const handleLogin = async (endpoint) => {
     setTouched({
       email: true,
       password: true,
     });
     setError("");
     try {
-      const response = await fetch(url, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,9 +44,9 @@ export default function Login() {
 
       if (response.ok) {
         localStorage.setItem("userId", data.id);
-        if (url.includes("students")) {
+        if (endpoint.includes("students")) {
           router.push("/student");
-        } else if (url.includes("supervisors")) {
+        } else if (endpoint.includes("supervisors")) {
           router.push("/supervisor");
         }
       } else {
@@ -151,18 +152,14 @@ export default function Login() {
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() =>
-                  handleLogin("http://127.0.0.1:5001/api/students/login")
-                }
+                onClick={() => handleLogin("/api/students/login")}
               >
                 Log In as Student
               </button>
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() =>
-                  handleLogin("http://127.0.0.1:5001/api/supervisors/login")
-                }
+                onClick={() => handleLogin("/api/supervisors/login")}
               >
                 Log In as Supervisor
               </button>

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Project, Student, Supervisor
+from app.models import db, Project, Student, Supervisor
 from sqlalchemy import text
 from project import update_project_data
 
