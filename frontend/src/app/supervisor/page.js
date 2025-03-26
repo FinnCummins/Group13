@@ -96,70 +96,6 @@ export default function SupervisorHomePage() {
     },
     [isClient]
   );
-  const openEditModal = (project) => {
-    setSelectedProject(project);
-    setIsEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedProject(null);
-  };
-
-  const handleCardClick = (projectId) => {
-    localStorage.setItem("projectId", projectId);
-    router.push(`/supervisorProjectID/${projectId}`);
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    const { project_title, project_description, keywords } = selectedProject;
-
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:5001/api/projects/${selectedProject.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            project_title,
-            project_description,
-            keywords,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update project");
-      }
-
-      setProjects((prevProjects) =>
-        prevProjects.map((project) =>
-          project.id === selectedProject.id
-            ? { ...project, ...selectedProject }
-            : project
-        )
-      );
-
-      closeEditModal();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleProjectClick = useCallback(
-    (projectId) => {
-      if (isClient) {
-        localStorage.setItem("projectId", projectId);
-      }
-    },
-    [isClient]
-  );
-
   if (!isClient) {
     return <div>Loading...</div>;
   }
@@ -183,9 +119,6 @@ export default function SupervisorHomePage() {
           project.id === projectId
             ? { ...project, project_status: newStatus }
             : project
-          project.id === projectId
-            ? { ...project, project_status: newStatus }
-            : project
         )
       );
     } catch (err) {
@@ -201,10 +134,6 @@ export default function SupervisorHomePage() {
           name="description"
           content="Supervisor dashboard displaying all projects."
         />
-        <meta
-          name="description"
-          content="Supervisor dashboard displaying all projects."
-        />
       </Head>
 
       <SupervisorNavbar />
@@ -212,7 +141,6 @@ export default function SupervisorHomePage() {
       <main className="mt-20 px-4">
         <section className="bg-[var(--foreground)] text-[var(--background)] py-16">
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-5xl font-extrabold mb-4 text-center">
             <h1 className="text-5xl font-extrabold mb-4 text-center">
               Supervisor Dashboard
             </h1>
@@ -278,147 +206,12 @@ export default function SupervisorHomePage() {
                       )}
                     </div>
                   </div>
-                  <div
-                    key={project.id}
-                    onClick={() => handleCardClick(project.id)}
-                    className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)] cursor-pointer"
-                  >
-                    <div>
-                      <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                        {project.project_title}
-                      </h2>
-                    </div>
-                    <div className="flex items-center space-x-2 whitespace-nowrap">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditModal(project);
-                        }}
-                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                      >
-                        Edit
-                      </button>
-
-                      {project.project_status === "taken" ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateProjectStatus(
-                              project.id,
-                              project.project_status
-                            );
-                          }}
-                          className="bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        >
-                          Taken
-                        </button>
-                      ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateProjectStatus(
-                              project.id,
-                              project.project_status
-                            );
-                          }}
-                          className="bg-[var(--foreground)] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        >
-                          Mark as Taken
-                        </button>
-                      )}
-                    </div>
-                  </div>
                 ))}
               </div>
             )}
           </div>
         </section>
       </main>
-      {isEditModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-            <h2 className="text-2xl font-bold mb-4">Edit Project</h2>
-            <form onSubmit={handleEditSubmit}>
-              <div className="mb-4">
-                <label
-                  htmlFor="projectTitle"
-                  className="block text-sm font-bold mb-2"
-                >
-                  Project Title
-                </label>
-                <input
-                  id="projectTitle"
-                  type="text"
-                  value={selectedProject.project_title}
-                  onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
-                      project_title: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="projectDescription"
-                  className="block text-sm font-bold mb-2"
-                >
-                  Project Description
-                </label>
-                <textarea
-                  id="projectDescription"
-                  value={selectedProject.project_description}
-                  onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
-                      project_description: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="keywords"
-                  className="block text-sm font-bold mb-2"
-                >
-                  Keywords (comma separated)
-                </label>
-                <input
-                  id="keywords"
-                  type="text"
-                  value={selectedProject.keywords.join(", ")}
-                  onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
-                      keywords: e.target.value
-                        .split(",")
-                        .map((keyword) => keyword.trim()),
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={closeEditModal}
-                  className="bg-gray-500 text-white py-2 px-4 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white py-2 px-4 rounded"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       {isEditModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg w-96">
