@@ -95,11 +95,15 @@ def get_project(project_id):
 # TODO: update vector database
 @project_bp.route('/projects/<int:project_id>', methods=['PUT'])
 def update_project(project_id):
+    data = request.get_json()
+    return update_project_data(project_id, data)
+
+
+def update_project_data(project_id, data):
     project = Project.query.get(project_id)
     if not project:
         return jsonify({'message': 'Project not found'}), 404
 
-    data = request.get_json()
     if 'project_title' in data:
         project.project_title = data['project_title']
     if 'project_description' in data:
