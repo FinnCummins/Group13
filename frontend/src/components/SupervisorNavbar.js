@@ -7,7 +7,7 @@ export default function SupervisorNavbar() {
   const toggleNav = () => setNavOpen(!navOpen);
 
   const handleLogout = () => {
-    localStorage.removeItem('userId'); // Remove userId from local storage
+    localStorage.removeItem("userId"); // Remove userId from local storage
   };
 
   return (
@@ -27,13 +27,12 @@ export default function SupervisorNavbar() {
           <Link href="/addProject">Add Project</Link>
         </li>
         <li className="px-4">
-          <Link href="/editProject">Edit Project</Link>
-        </li>
-        <li className="px-4">
           <Link href="/manage-candidates">Manage Candidates</Link>
         </li>
         <li className="px-4">
-          <Link href="/" onClick={handleLogout}>Logout</Link>
+          <Link href="/" onClick={handleLogout}>
+            Logout
+          </Link>
         </li>
       </ul>
 
@@ -56,17 +55,20 @@ export default function SupervisorNavbar() {
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="/editProject" onClick={toggleNav}>
-            Edit Project
-          </Link>
-        </li>
-        <li className="py-6 text-4xl">
           <Link href="/manage-candidates" onClick={toggleNav}>
             Manage Candidates
           </Link>
         </li>
         <li className="py-6 text-4xl">
-          <Link href="/" onClick={() => { toggleNav(); handleLogout(); }}>Logout</Link>
+          <Link
+            href="/"
+            onClick={() => {
+              toggleNav();
+              handleLogout();
+            }}
+          >
+            Logout
+          </Link>
         </li>
       </ul>
     </div>
