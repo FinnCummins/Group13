@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Project, Student, Supervisor
+from app.models import db, Project, Student, Supervisor
 from sqlalchemy import text
 
 project_requests_bp = Blueprint('project_requests', __name__)

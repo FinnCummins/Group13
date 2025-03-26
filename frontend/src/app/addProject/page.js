@@ -57,7 +57,8 @@ export default function AddProjectPage() {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/projects", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

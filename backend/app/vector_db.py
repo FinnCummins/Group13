@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import os
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
-from open_ai import get_embedding
+from app.open_ai import get_embedding
 
 vector_bp = Blueprint('vector', __name__)
 

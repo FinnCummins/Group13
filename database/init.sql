@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS supervisors (
 CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
     project_title VARCHAR(255) NOT NULL,
-    project_description VARCHAR(2000) NOT NULL,
+    project_description VARCHAR(20000) NOT NULL,
     keywords TEXT[],
     project_status VARCHAR(100) NOT NULL,
     supervisor_id INT NOT NULL,

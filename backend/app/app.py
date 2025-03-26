@@ -1,39 +1,37 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from flask_cors import CORS 
+from flask_cors import CORS
 import os
-from user import user_bp
-from project import project_bp
-from llm import llm_bp
-from vector_db import vector_bp
-from models import db
-from project_requests import project_requests_bp
+from dotenv import load_dotenv
 
+# Create the Flask app
 app = Flask(__name__)
-
 CORS(app)
 
-app.config["JWT_SECRET_KEY"] = "super_secret_key_123"
+# Configure database
+if os.getenv('FLY_APP_NAME'):
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL environment variable is not set")
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL.strip('"\'')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/postgres'
 
-jwt = JWTManager(app)
-
-DB_USER = os.getenv("POSTGRES_USER", "myuser")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "mypassword")
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
-DB_NAME = os.getenv("POSTGRES_DB", "mydatabase")
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
+# Initialize extensions
+db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
-with app.app_context():
-    db.create_all()
+# Import routes AFTER db initialization
+from app.user import user_bp
+from app.project import project_bp
+from app.llm import llm_bp
+from app.vector_db import vector_bp
+from app.project_requests import project_requests_bp
 
-@app.route('/')
-def hello_world():
-    return "This application will help guide final year computer science students find and select their capstone project"
-
+# Register blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(project_bp, url_prefix='/api')
 app.register_blueprint(llm_bp, url_prefix='/api')
@@ -41,4 +39,4 @@ app.register_blueprint(vector_bp, url_prefix='/api')
 app.register_blueprint(project_requests_bp, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
