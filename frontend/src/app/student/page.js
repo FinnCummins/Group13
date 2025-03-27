@@ -10,6 +10,13 @@ export default function StudentHomePage() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [studentId, setStudentId] = useState(null);
+
+  useEffect(() => {
+    setIsClient(true);
+    const storedStudentId = localStorage.getItem("userId"); 
+    setStudentId(storedStudentId);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -36,6 +43,33 @@ export default function StudentHomePage() {
       localStorage.setItem('projectId', projectId);
     }
   }, [isClient]);
+
+  const handleRequestProject = async (projectId) => {
+    if (!studentId) {
+      alert("Student ID not found. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5001/api/requests/${studentId}/${projectId}`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message); // Show success message
+    } catch (err) {
+      alert("An error occurred while requesting the project.");
+    }
+  };
 
   if (!isClient) {
     return <div>Loading...</div>;
@@ -68,29 +102,37 @@ export default function StudentHomePage() {
             ) : (
               <div className="space-y-8">
                 {projects.map((project) => (
-                  <Link href={`/projectID/${project.id}`} key={project.id}>
-                    <div
-                      onClick={() => handleProjectClick(project.id)}
-                      className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex flex-col justify-between items-start border border-[var(--foreground)]"
+                  <div key={project.id}>
+                    <Link href={`/projectID/${project.id}`}>
+                      <div
+                        onClick={() => handleProjectClick(project.id)}
+                        className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex flex-col justify-between items-start border border-[var(--foreground)]"
+                      >
+                        <div>
+                          <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
+                            {project.project_title}
+                          </h2>
+                        </div>
+                        <div>
+                          <span
+                            className={`px-3 py-1 rounded font-bold ${
+                              project.project_status.toLowerCase() === "taken"
+                                ? "bg-red-500 text-white"
+                                : "bg-green-500 text-white"
+                            }`}
+                          >
+                            {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => handleRequestProject(project.id)}
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                     >
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                          {project.project_title}
-                        </h2>
-                      </div>
-                      <div>
-                        <span
-                          className={`px-3 py-1 rounded font-bold ${
-                            project.project_status.toLowerCase() === "taken"
-                              ? "bg-red-500 text-white"
-                              : "bg-green-500 text-white"
-                          }`}
-                        >
-                          {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                      Request Project
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
