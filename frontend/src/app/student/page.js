@@ -58,6 +58,11 @@ export default function StudentHomePage() {
     }
   }, [isClient]);
 
+  const handleCardClick = (projectId) => {
+    localStorage.setItem("projectId", projectId); // Store projectId in localStorage
+    router.push(`/projectID/${projectId}`); // Navigate to the dynamic project page
+  };
+
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     if (!studentId) {
@@ -118,36 +123,37 @@ export default function StudentHomePage() {
             ) : (
               <div className="space-y-8">
                 {projects.map((project) => (
-                  <div key={project.id}>
-                    <Link href={`/projectID/${project.id}`}>
-                      <div
-                        onClick={() => handleProjectClick(project.id)}
-                        className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex flex-col justify-between items-start border border-[var(--foreground)]"
+                  <div
+                  key={project.id}
+                  className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)]"
+                  >
+                  <Link href={`/projectID/${project.id}`} passHref>
+                    <div className="cursor-pointer flex-grow">
+                      <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
+                        {project.project_title}
+                      </h2>
+                    </div>
+                  </Link>
+                  <div className="flex items-center space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent card click
+                          openRequestModal(project);
+                        }}
+                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                       >
-                        <div>
-                          <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                            {project.project_title}
-                          </h2>
-                        </div>
-                        <div>
-                          <span
-                            className={`px-3 py-1 rounded font-bold ${
-                              project.project_status.toLowerCase() === "taken"
-                                ? "bg-red-500 text-white"
-                                : "bg-green-500 text-white"
-                            }`}
-                          >
-                            {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                    <button
-                      onClick={() => openRequestModal(project)}
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                      Request Project
-                    </button>
+                        Request Project
+                      </button>
+                      <span
+                          className={`px-3 py-1 rounded font-bold ${
+                            project.project_status.toLowerCase() === "taken"
+                              ? "bg-red-500 text-white"
+                              : "bg-green-500 text-white"
+                          }`}
+                        >
+                          {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -188,7 +194,7 @@ export default function StudentHomePage() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-green-500 text-white py-2 px-4 rounded"
+                  className="bg-blue-500 text-white py-2 px-4 rounded"
                 >
                   Submit Request
                 </button>
