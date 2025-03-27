@@ -42,6 +42,9 @@ def make_request(student_id, supervisor_id, project_id):
     if project.supervisor_id != supervisor.id:
         return jsonify({"error": "Supervisor does not match project's supervisor"}), 400
 
+    if project.project_status == "taken":
+        return jsonify({"error": "Project already taken"}), 400
+
     existing_request = db.session.execute(
         text("SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id"),
         {"student_id": student_id, "project_id": project_id}
@@ -178,34 +181,60 @@ def update_request(request_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+
 @project_requests_bp.route('/supervisor_requests/<int:supervisor_id>', methods=['GET'])
 def get_supervisor_requests(supervisor_id):
-    try:
-        supervisor = Supervisor.query.get(supervisor_id)
-        if not supervisor:
-            return jsonify({"error": "Supervisor not found"}), 404
+    return get_user_requests(supervisor_id, Supervisor, "supervisor")
 
-        requests = db.session.execute(
-            text("""
-                SELECT id, student_id, project_id, status
-                FROM requests
-                WHERE supervisor_id = :supervisor_id
-                """),
-            {"supervisor_id": supervisor_id}
-        ).fetchall()
+
+@project_requests_bp.route('/student_requests/<int:student_id>', methods=['GET'])
+def get_student_requests(student_id):
+    return get_user_requests(student_id, Student, "student")
+
+
+def get_user_requests(user_id, user_model, user_type):
+    try:
+        user = user_model.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        if user_type == "supervisor":
+            requests = db.session.execute(
+                text("""
+                    SELECT id, student_id, project_id, status
+                    FROM requests
+                    WHERE supervisor_id = :supervisor_id
+                    """),
+                {"supervisor_id": user_id}
+            ).fetchall()
+        elif user_type == "student":
+            requests = db.session.execute(
+                text("""
+                    SELECT id, supervisor_id, project_id, status
+                    FROM requests
+                    WHERE student_id = :student_id
+                    """),
+                {"student_id": user_id}
+            ).fetchall()
 
         results = []
         for req in requests:
             project_data = Project.query.get(req.project_id)
-            student_data = Student.query.get(req.student_id)
+            if user_type == "supervisor":
+                other_user_type = "student"
+                other_user_data = Student.query.get(req.student_id)
+            else:
+                other_user_type = "supervisor"
+                other_user_data = Supervisor.query.get(req.supervisor_id)
+
             results.append({
                 "request_id": req.id,
                 "status": req.status,
-                "student": {
-                    "id": student_data.id,
-                    "first_name": student_data.first_name,
-                    "last_name": student_data.last_name,
-                    "email": student_data.email
+                other_user_type: {
+                    "id": other_user_data.id,
+                    "first_name": other_user_data.first_name,
+                    "last_name": other_user_data.last_name,
+                    "email": other_user_data.email
                 },
                 "project": {
                     "id": project_data.id,
