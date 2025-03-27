@@ -11,6 +11,9 @@ export default function StudentHomePage() {
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [studentId, setStudentId] = useState(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false); 
+  const [selectedProject, setSelectedProject] = useState(null); 
+  const [message, setMessage] = useState(""); 
 
   useEffect(() => {
     setIsClient(true);
@@ -38,13 +41,25 @@ export default function StudentHomePage() {
     fetchProjects();
   }, []);
 
+  const openRequestModal = (project) => {
+    setSelectedProject(project);
+    setIsRequestModalOpen(true);
+  };
+
+  const closeRequestModal = () => {
+    setIsRequestModalOpen(false);
+    setSelectedProject(null);
+    setMessage(""); // Clear the message input
+  };
+
   const handleProjectClick = useCallback((projectId) => {
     if (isClient) {
       localStorage.setItem('projectId', projectId);
     }
   }, [isClient]);
 
-  const handleRequestProject = async (projectId) => {
+  const handleRequestSubmit = async (e) => {
+    e.preventDefault();
     if (!studentId) {
       alert("Student ID not found. Please log in.");
       return;
@@ -52,7 +67,7 @@ export default function StudentHomePage() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:5001/api/requests/${studentId}/${projectId}`,
+        `http://127.0.0.1:5001/api/requests/${studentId}/${selectedProject.id}`,
         {
           method: "POST",
         }
@@ -66,8 +81,9 @@ export default function StudentHomePage() {
 
       const data = await response.json();
       alert(data.message); // Show success message
+      closeRequestModal();
     } catch (err) {
-      alert("An error occurred while requesting the project.");
+      alert(err.message || "An error occurred while requesting the project.");
     }
   };
 
@@ -127,7 +143,7 @@ export default function StudentHomePage() {
                       </div>
                     </Link>
                     <button
-                      onClick={() => handleRequestProject(project.id)}
+                      onClick={() => openRequestModal(project)}
                       className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                     >
                       Request Project
@@ -141,6 +157,46 @@ export default function StudentHomePage() {
         </section>
         
       </main>
+
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+            <h2 className="text-2xl font-bold mb-4">Request Project</h2>
+            <form onSubmit={handleRequestSubmit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-bold mb-2"
+                >
+                  Optional Message
+                </label>
+                <textarea
+                  id="message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Add a message for the supervisor..."
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={closeRequestModal}
+                  className="bg-gray-500 text-white py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-500 text-white py-2 px-4 rounded"
+                >
+                  Submit Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <footer className="text-center py-6 border-t border-[var(--foreground)]">
         <p>2025 Final Year Project Finder</p>
