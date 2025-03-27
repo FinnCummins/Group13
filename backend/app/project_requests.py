@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, Project, Student, Supervisor
 from sqlalchemy import text
+from project import update_project_data
 
 project_requests_bp = Blueprint('project_requests', __name__)
 
@@ -16,23 +17,34 @@ def create_request():
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
 
+    return make_request(data["student_id"], data["supervisor_id"], data["project_id"])
+
+
+@project_requests_bp.route('/requests/<int:student_id>/<int:project_id>', methods=['POST'])
+def request_project(student_id, project_id):
+    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id)
+
+def make_request(student_id, supervisor_id, project_id):
+
     # Verify that the student, supervisor, and project exist
-    student = Student.query.get(data["student_id"])
+    student = Student.query.get(student_id)
     if not student:
         return jsonify({"error": "Student not found"}), 404
 
-    supervisor = Supervisor.query.get(data["supervisor_id"])
+    supervisor = Supervisor.query.get(supervisor_id)
     if not supervisor:
         return jsonify({"error": "Supervisor not found"}), 404
 
-    project = Project.query.get(data["project_id"])
+    project = Project.query.get(project_id)
     if not project:
         return jsonify({"error": "Project not found"}), 404
 
-    # Check if request already exists
+    if project.supervisor_id != supervisor.id:
+        return jsonify({"error": "Supervisor does not match project's supervisor"}), 400
+
     existing_request = db.session.execute(
         text("SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id"),
-        {"student_id": data["student_id"], "project_id": data["project_id"]}
+        {"student_id": student_id, "project_id": project_id}
     ).first()
     if existing_request:
         return jsonify({"error": "Request already exists for this project"}), 400
@@ -44,9 +56,9 @@ def create_request():
             VALUES (:student_id, :supervisor_id, :project_id, 'pending')
             """),
             {
-                "student_id": data["student_id"],
-                "supervisor_id": data["supervisor_id"],
-                "project_id": data["project_id"]
+                "student_id": student_id,
+                "supervisor_id": supervisor_id,
+                "project_id": project_id
             }
         )
         db.session.commit()
@@ -107,7 +119,7 @@ def get_request(request_id):
             "SELECT * FROM requests WHERE id = :id",
             {"id": request_id}
         ).first()
-        
+
         if not request_data:
             return jsonify({"error": "Request not found"}), 404
 
@@ -138,17 +150,23 @@ def update_request(request_id):
 
     try:
         result = db.session.execute(
-            """
-            UPDATE requests 
-            SET status = :status 
-            WHERE id = :id
-            RETURNING *
-            """,
+            text("""
+                UPDATE requests 
+                SET status = :status 
+                WHERE id = :id
+                RETURNING *
+                """),
             {"id": request_id, "status": data["status"]}
         ).first()
 
         if not result:
             return jsonify({"error": "Request not found"}), 404
+
+        #update project status
+        if data["status"] == "accepted":
+            update_project_response, response_status = update_project_data(result.project_id, {"project_status": "taken"})
+            if response_status != 200:
+                return update_project_response, response_status
 
         db.session.commit()
         return jsonify({
@@ -160,6 +178,47 @@ def update_request(request_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+@project_requests_bp.route('/supervisor_requests/<int:supervisor_id>', methods=['GET'])
+def get_supervisor_requests(supervisor_id):
+    try:
+        supervisor = Supervisor.query.get(supervisor_id)
+        if not supervisor:
+            return jsonify({"error": "Supervisor not found"}), 404
+
+        requests = db.session.execute(
+            text("""
+                SELECT id, student_id, project_id, status
+                FROM requests
+                WHERE supervisor_id = :supervisor_id
+                """),
+            {"supervisor_id": supervisor_id}
+        ).fetchall()
+
+        results = []
+        for req in requests:
+            project_data = Project.query.get(req.project_id)
+            student_data = Student.query.get(req.student_id)
+            results.append({
+                "request_id": req.id,
+                "status": req.status,
+                "student": {
+                    "id": student_data.id,
+                    "first_name": student_data.first_name,
+                    "last_name": student_data.last_name,
+                    "email": student_data.email
+                },
+                "project": {
+                    "id": project_data.id,
+                    "project_status": project_data.project_status,
+                    "project_title": project_data.project_title,
+                    "supervisor_id": project_data.supervisor_id
+                }
+            })
+
+
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @project_requests_bp.route('/requests/<int:request_id>', methods=['DELETE'])
 def delete_request(request_id):
