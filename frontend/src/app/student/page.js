@@ -10,6 +10,16 @@ export default function StudentHomePage() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [studentId, setStudentId] = useState(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false); 
+  const [selectedProject, setSelectedProject] = useState(null); 
+  const [message, setMessage] = useState(""); 
+
+  useEffect(() => {
+    setIsClient(true);
+    const storedStudentId = localStorage.getItem("userId"); 
+    setStudentId(storedStudentId);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -31,11 +41,56 @@ export default function StudentHomePage() {
     fetchProjects();
   }, []);
 
+  const openRequestModal = (project) => {
+    setSelectedProject(project);
+    setIsRequestModalOpen(true);
+  };
+
+  const closeRequestModal = () => {
+    setIsRequestModalOpen(false);
+    setSelectedProject(null);
+    setMessage(""); // Clear the message input
+  };
+
   const handleProjectClick = useCallback((projectId) => {
     if (isClient) {
       localStorage.setItem('projectId', projectId);
     }
   }, [isClient]);
+
+  const handleCardClick = (projectId) => {
+    localStorage.setItem("projectId", projectId); // Store projectId in localStorage
+    router.push(`/projectID/${projectId}`); // Navigate to the dynamic project page
+  };
+
+  const handleRequestSubmit = async (e) => {
+    e.preventDefault();
+    if (!studentId) {
+      alert("Student ID not found. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5001/api/requests/${studentId}/${selectedProject.id}`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message); // Show success message
+      closeRequestModal();
+    } catch (err) {
+      alert(err.message || "An error occurred while requesting the project.");
+    }
+  };
 
   if (!isClient) {
     return <div>Loading...</div>;
@@ -68,18 +123,28 @@ export default function StudentHomePage() {
             ) : (
               <div className="space-y-8">
                 {projects.map((project) => (
-                  <Link href={`/projectID/${project.id}`} key={project.id}>
-                    <div
-                      onClick={() => handleProjectClick(project.id)}
-                      className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex flex-col justify-between items-start border border-[var(--foreground)]"
-                    >
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                          {project.project_title}
-                        </h2>
-                      </div>
-                      <div>
-                        <span
+                  <div
+                  key={project.id}
+                  className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)]"
+                  >
+                  <Link href={`/projectID/${project.id}`} passHref>
+                    <div className="cursor-pointer flex-grow">
+                      <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
+                        {project.project_title}
+                      </h2>
+                    </div>
+                  </Link>
+                  <div className="flex items-center space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent card click
+                          openRequestModal(project);
+                        }}
+                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                      >
+                        Request Project
+                      </button>
+                      <span
                           className={`px-3 py-1 rounded font-bold ${
                             project.project_status.toLowerCase() === "taken"
                               ? "bg-red-500 text-white"
@@ -87,10 +152,9 @@ export default function StudentHomePage() {
                           }`}
                         >
                           {project.project_status.toLowerCase() === "taken" ? "Taken" : "Available"}
-                        </span>
-                      </div>
+                      </span>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
@@ -99,6 +163,46 @@ export default function StudentHomePage() {
         </section>
         
       </main>
+
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+            <h2 className="text-2xl font-bold mb-4">Request Project</h2>
+            <form onSubmit={handleRequestSubmit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-bold mb-2"
+                >
+                  Optional Message
+                </label>
+                <textarea
+                  id="message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Add a message for the supervisor..."
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={closeRequestModal}
+                  className="bg-gray-500 text-white py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white py-2 px-4 rounded"
+                >
+                  Submit Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <footer className="text-center py-6 border-t border-[var(--foreground)]">
         <p>2025 Final Year Project Finder</p>
