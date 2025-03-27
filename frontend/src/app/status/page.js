@@ -72,20 +72,19 @@ export default function ProposalStatus() {
                       <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
                         {request.project.project_title}
                       </h2>
-                      <p className="text-[var(--text)]">
-                        Request Status:{" "}
-                        <span
-                          className={`font-bold ${
-                            request.status.toLowerCase() === "approved"
-                              ? "text-green-500"
-                              : request.status.toLowerCase() === "rejected"
-                              ? "text-red-500"
-                              : "text-yellow-500"
-                          }`}
-                        >
-                          {request.status}
-                        </span>
-                      </p>
+                      <div className="flex items-center space-x-2 whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 rounded font-bold ${
+                          request.status.toLowerCase() === "approved"
+                            ? "bg-green-500 text-white"
+                            : request.status.toLowerCase() === "rejected"
+                            ? "bg-red-500 text-white"
+                            : "bg-yellow-500 text-white"
+                        }`}
+                      >
+                        {request.status}
+                      </span>
+                    </div>
                     </div>
                   </div>
                 ))}
