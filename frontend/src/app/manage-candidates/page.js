@@ -16,7 +16,7 @@ export default function SupervisorRequestsPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
-    async function fetchProjectRequests() {
+    async function fetchRequestsAndDetails() {
       try {
         const supervisorId = localStorage.getItem("userId");
         if (!supervisorId) {
@@ -24,22 +24,46 @@ export default function SupervisorRequestsPage() {
           return;
         }
         const response = await fetch(
-          `http://127.0.0.1:5001/api/project-requests?supervisor_id=${supervisorId}`
+          `http://127.0.0.1:5001/api/requests?supervisor_id=11`
         );
 
         if (!response.ok) {
           throw new Error("Failed to fetch project requests");
         }
 
-        const data = await response.json();
-        setProjectRequests(data || []);
-        setFilteredRequests(data || []);
+        const requestsData = await response.json();
+
+        const requestsWithDetails = await Promise.all(
+          requestsData.map(async (req) => {
+            const projRes = await fetch(
+              `http://127.0.0.1:5001/api/projects/${req.project_id}`
+            );
+            const project = await projRes.json();
+
+            const studentRes = await fetch(
+              `http://127.0.0.1:5001/api/students/${req.student_id}`
+            );
+            const student = await studentRes.json();
+
+            return {
+              ...req,
+              project_title: project.project_title,
+              project_description: project.project_description,
+              keywords: project.keywords,
+              student_name: `${student.first_name} ${student.last_name}`.trim(),
+              student_email: student.email,
+            };
+          })
+        );
+
+        setProjectRequests(requestsWithDetails);
+        setFilteredRequests(requestsWithDetails);
       } catch (err) {
         setError(err.message);
       }
     }
 
-    fetchProjectRequests();
+    fetchRequestsAndDetails();
   }, []);
 
   useEffect(() => {
@@ -51,28 +75,31 @@ export default function SupervisorRequestsPage() {
       );
     }
 
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (request) =>
-          request.student_name.toLowerCase().includes(query) ||
-          request.project_title.toLowerCase().includes(query)
-      );
+      result = result.filter((request) => {
+        const studentName = request.student_name?.toLowerCase() || "";
+        const projectTitle = request.project_title?.toLowerCase() || "";
+        return studentName.includes(query) || projectTitle.includes(query);
+      });
     }
-
     result.sort((a, b) => {
       if (sortBy === "date") {
-        return sortDirection === "asc"
-          ? new Date(a.request_date) - new Date(b.request_date)
-          : new Date(b.request_date) - new Date(a.request_date);
-      } else if (sortBy === "name") {
-        return sortDirection === "asc"
-          ? a.student_name.localeCompare(b.student_name)
-          : b.student_name.localeCompare(a.student_name);
-      } else if (sortBy === "title") {
+        const dateA = new Date(a.request_date);
+        const dateB = new Date(b.request_date);
+        return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
+      } else if (sortBy === "id") {
+        return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
+      }
+      if (sortBy === "title") {
         return sortDirection === "asc"
           ? a.project_title.localeCompare(b.project_title)
           : b.project_title.localeCompare(a.project_title);
+      }
+      if (sortBy === "name") {
+        return sortDirection === "asc"
+          ? a.student_name.localeCompare(b.student_name)
+          : b.student_name.localeCompare(a.student_name);
       }
       return 0;
     });
@@ -83,7 +110,7 @@ export default function SupervisorRequestsPage() {
   const updateRequestStatus = async (requestId, newStatus) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5001/api/project-requests/${requestId}`,
+        `http://127.0.0.1:5001/api/requests/${requestId}`,
         {
           method: "PUT",
           headers: {
@@ -161,6 +188,7 @@ export default function SupervisorRequestsPage() {
                   <option value="all">All Statuses</option>
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
+                  <option value="pending">Pending</option>
                 </select>
               </div>
 
@@ -230,27 +258,10 @@ export default function SupervisorRequestsPage() {
                           <strong>Student:</strong> {request.student_name}
                         </p>
 
-                        <p className="text-[var(--text)] mb-4 line-clamp-2">
-                          {request.project_description}
-                        </p>
-
                         <p className="text-sm text-[var(--text)]/70">
                           Requested on:{" "}
                           {new Date(request.request_date).toLocaleDateString()}
                         </p>
-
-                        {request.keywords && request.keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            {request.keywords.map((keyword, index) => (
-                              <span
-                                key={index}
-                                className="bg-[var(--foreground)]/20 text-[var(--foreground)] text-sm font-medium px-3 py-1 rounded-full"
-                              >
-                                {keyword}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
 
                       <div className="flex flex-col gap-2 justify-start">
@@ -280,6 +291,24 @@ export default function SupervisorRequestsPage() {
                 className="text-gray-500 hover:text-gray-800"
               >
                 ✕
+              </button>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() =>
+                  updateRequestStatus(selectedRequest.id, "accepted")
+                }
+                className="bg-green-500 text-white px-4 py-2 rounded"
+              >
+                Accept
+              </button>
+              <button
+                onClick={() =>
+                  updateRequestStatus(selectedRequest.id, "rejected")
+                }
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Reject
               </button>
             </div>
 
