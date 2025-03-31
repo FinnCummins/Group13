@@ -253,7 +253,9 @@ def get_user_requests(user_id, user_model, user_type):
 def delete_request(request_id):
     try:
         result = db.session.execute(
-            "DELETE FROM requests WHERE id = :id RETURNING *",
+            text("""
+            DELETE FROM requests WHERE id = :id RETURNING *
+            """),
             {"id": request_id}
         ).first()
 
