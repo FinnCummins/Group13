@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS projects (
     FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS chatbotHistory (
+CREATE TABLE IF NOT EXISTS chatbot_history (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     context TEXT,

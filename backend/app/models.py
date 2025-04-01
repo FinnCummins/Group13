@@ -48,7 +48,7 @@ class Project(db.Model):
     supervisor = db.relationship('Supervisor', backref=db.backref('projects', lazy=True, cascade="all, delete-orphan"))
 
 class ChatbotHistory(db.Model):
-    __tablename__ = 'chatbotHistory'
+    __tablename__ = 'chatbot_history'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete="CASCADE"), nullable=False)

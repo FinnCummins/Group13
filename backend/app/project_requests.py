@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.models import db, Project, Student, Supervisor
 from sqlalchemy import text
-from project import update_project_data
+from app.project import update_project_data
 
 project_requests_bp = Blueprint('project_requests', __name__)
 
