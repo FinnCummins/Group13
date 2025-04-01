@@ -1,10 +1,9 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from app.extensions import db, jwt
 
 # Load environment variables
 load_dotenv()
@@ -13,9 +12,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Add these lines
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key-here')  # it's better to use an environment variable
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Optional: set token expiration
+# Configure JWT and other settings
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key-here')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
 # Configure database
 if os.getenv('FLY_APP_NAME'):
@@ -33,10 +32,10 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
+db.init_app(app)
+jwt.init_app(app)
 
-# Import routes AFTER db initialization
+# Import routes
 from app.user import user_bp
 from app.project import project_bp
 from app.llm import llm_bp
