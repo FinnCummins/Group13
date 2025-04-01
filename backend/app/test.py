@@ -1,7 +1,16 @@
 import requests
 import pytest
+import json
 
 BASE_URL = "http://127.0.0.1:5001/api/projects"
+
+VECTOR_BASE_URL = "http://127.0.0.1:5001/api/vector"
+
+TEST_VECTOR = {
+    "vector_id": "test123",
+    "vector": [0.1, 0.2, 0.3, ...],  # Example vector data
+    "metadata": {"info": "Test vector"}
+}
 
 # Sample test data
 TEST_USER = {"email": "testuser@example.com", "password": "TestPass123"}
@@ -66,6 +75,20 @@ def test_rate_limiting():
         response = requests.get(f"{BASE_URL}/health")
     assert response.status_code in [200, 429]  # 429 if rate limit exceeded
 
+def test_upsert_vector():
+    response = requests.post(f"{VECTOR_BASE_URL}/upsert", json=TEST_VECTOR)
+    assert response.status_code == 200
+    assert response.json().get("message") == "Vector upserted successfully"
+
+def test_query_vector():
+    response = requests.post(f"{VECTOR_BASE_URL}/query", json={"vector": [0.1, 0.2, 0.3, ...]})
+    assert response.status_code == 200
+    assert isinstance(response.json().get("matches"), list)
+
+def test_delete_vector():
+    response = requests.delete(f"{VECTOR_BASE_URL}/delete", json={"vector_ids": ["test123"]})
+    assert response.status_code == 200
+    assert response.json().get("message") == "Vectors deleted successfully"
 
 if __name__ == "__main__":
     pytest.main()

@@ -110,13 +110,23 @@ app.register_blueprint(project_bp, url_prefix='/api')
 app.register_blueprint(llm_bp, url_prefix='/api')
 app.register_blueprint(vector_bp, url_prefix='/api')
 
+def create_app(config_object):
+    app = Flask(__name__)
+    app.config.from_object(config_object)
+    db.init_app(app)
+    mail.init_app(app)
+    jwt.init_app(app)
+
+    CORS(app)
+
+    with app.app_context():
+        db.create_all()
+
+    @app.route('/')
+    def hello():
+        return 'Hello, World!'
+
+    return app
+
 if __name__ == '__main__':
     app.run()
-
-
-
-
-
-
-
-
