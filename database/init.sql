@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS requests (
     project_id INT NOT NULL,
     request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(50) DEFAULT 'pending',
+    student_request_text TEXT,
+    supervisor_response_text TEXT,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE

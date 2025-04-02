@@ -77,6 +77,8 @@ def get_requests():
     supervisor_id = request.args.get('supervisor_id', type=int)
     project_id = request.args.get('project_id', type=int)
     status = request.args.get('status')
+    student_request_text = request.args.get('student_request_text')
+    supervisor_response_text = request.args.get('supervisor_response_text')
 
     base_query = "SELECT * FROM requests WHERE 1=1"
     conditions = []
@@ -94,6 +96,12 @@ def get_requests():
     if status:
         conditions.append("status = :status")
         params["status"] = status
+    if student_request_text:
+        conditions.append("student_request_text = :student_request_text")
+        params["student_request_text"] = student_request_text
+    if supervisor_response_text:
+        conditions.append("supervisor_response_text = :supervisor_response_text")
+        params["supervisor_response_text"] = supervisor_response_text
 
     if conditions:
         base_query += " AND " + " AND ".join(conditions)
@@ -108,6 +116,8 @@ def get_requests():
                 "supervisor_id": req.supervisor_id,
                 "project_id": req.project_id,
                 "status": req.status,
+                "student_request_text": req.student_request_text,
+                "supervisor_response_text": req.supervisor_response_text,
                 "request_date": req.request_date.isoformat()
             })
         return jsonify(results), 200
@@ -119,7 +129,9 @@ def get_requests():
 def get_request(request_id):
     try:
         request_data = db.session.execute(
-            "SELECT * FROM requests WHERE id = :id",
+            text("""
+            SELECT * FROM requests WHERE id = :id
+            """),
             {"id": request_id}
         ).first()
 
@@ -132,6 +144,8 @@ def get_request(request_id):
             "supervisor_id": request_data.supervisor_id,
             "project_id": request_data.project_id,
             "status": request_data.status,
+            "student_request_text": request_data.student_request_text,
+            "supervisor_response_text": request_data.supervisor_response_text,
             "request_date": request_data.request_date.isoformat()
         }), 200
     except Exception as e:
