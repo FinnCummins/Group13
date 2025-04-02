@@ -17,16 +17,21 @@ def create_request():
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
 
-    return make_request(data["student_id"], data["supervisor_id"], data["project_id"], data.get("student_request_text", "the student has not added a message"))
+    return make_request(data["student_id"], data["supervisor_id"], data["project_id"],
+                        data.get("student_request_text", "the student has not added a message"))
 
 
 @project_requests_bp.route('/requests/<int:student_id>/<int:project_id>', methods=['POST'])
 def request_project(student_id, project_id):
-    data = request.get_json()
-    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id, data.get("student_request_text", "the student has not added a message"))
+    student_request_text = "the student has not added a message"
+    if request.is_json:
+        data = request.get_json()
+        student_request_text = data.get("student_request_text", "the student has not added a message")
 
-def make_request(student_id, supervisor_id, project_id, student_request_text = ""):
+    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id, student_request_text)
 
+
+def make_request(student_id, supervisor_id, project_id, student_request_text=""):
     # Verify that the student, supervisor, and project exist
     student = Student.query.get(student_id)
     if not student:
@@ -167,15 +172,17 @@ def update_request(request_id):
     if data["status"] not in valid_statuses:
         return jsonify({"error": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}), 400
 
+    supervisor_response_text = data.get("supervisor_response_text", "the supervisor has not added a message")
+
     try:
         result = db.session.execute(
             text("""
                 UPDATE requests 
-                SET status = :status 
+                SET status = :status, supervisor_response_text = :supervisor_response_text
                 WHERE id = :id
                 RETURNING *
                 """),
-            {"id": request_id, "status": data["status"]}
+            {"id": request_id, "status": data["status"], "supervisor_response_text": supervisor_response_text}
         ).first()
 
         if not result:
@@ -183,7 +190,8 @@ def update_request(request_id):
 
         #update project status
         if data["status"] == "accepted":
-            update_project_response, response_status = update_project_data(result.project_id, {"project_status": "taken"})
+            update_project_response, response_status = update_project_data(result.project_id,
+                                                                           {"project_status": "taken"})
             if response_status != 200:
                 return update_project_response, response_status
 
@@ -191,7 +199,8 @@ def update_request(request_id):
         return jsonify({
             "message": "Request updated successfully",
             "id": result.id,
-            "status": result.status
+            "status": result.status,
+            "supervisor_response_text": supervisor_response_text
         }), 200
     except Exception as e:
         db.session.rollback()
@@ -217,7 +226,7 @@ def get_user_requests(user_id, user_model, user_type):
         if user_type == "supervisor":
             requests = db.session.execute(
                 text("""
-                    SELECT id, student_id, project_id, status
+                    SELECT id, student_id, project_id, status, student_request_text, supervisor_response_text
                     FROM requests
                     WHERE supervisor_id = :supervisor_id
                     """),
@@ -226,7 +235,7 @@ def get_user_requests(user_id, user_model, user_type):
         elif user_type == "student":
             requests = db.session.execute(
                 text("""
-                    SELECT id, supervisor_id, project_id, status
+                    SELECT id, supervisor_id, project_id, status, student_request_text, supervisor_response_text
                     FROM requests
                     WHERE student_id = :student_id
                     """),
@@ -246,6 +255,8 @@ def get_user_requests(user_id, user_model, user_type):
             results.append({
                 "request_id": req.id,
                 "status": req.status,
+                "student_request_text": req.student_request_text,
+                "supervisor_response_text": req.supervisor_response_text,
                 other_user_type: {
                     "id": other_user_data.id,
                     "first_name": other_user_data.first_name,
@@ -260,10 +271,10 @@ def get_user_requests(user_id, user_model, user_type):
                 }
             })
 
-
         return jsonify(results), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @project_requests_bp.route('/requests/<int:request_id>', methods=['DELETE'])
 def delete_request(request_id):
