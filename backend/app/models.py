@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-
-db = SQLAlchemy()
+from app.app import db
 
 class User(db.Model):
     __abstract__ = True
@@ -49,7 +48,7 @@ class Project(db.Model):
     supervisor = db.relationship('Supervisor', backref=db.backref('projects', lazy=True, cascade="all, delete-orphan"))
 
 class ChatbotHistory(db.Model):
-    __tablename__ = 'chatbotHistory'
+    __tablename__ = 'chatbot_history'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete="CASCADE"), nullable=False)

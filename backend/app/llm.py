@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, Response
-from models import ChatbotHistory, db
-from user import get_user_interests
+from app.models import ChatbotHistory, db
+from app.user import get_user_interests
 #from project import get_projects
-from models import Student
-from open_ai import get_embedding, call_open_ai
+from app.models import Student
+from app.open_ai import get_embedding, call_open_ai
 
 llm_bp = Blueprint('llm', __name__)
 

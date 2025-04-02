@@ -19,7 +19,8 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const response = await fetch("http://127.0.0.1:5001/api/projects");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+        const response = await fetch(`${apiUrl}/api/projects`);
         if (!response.ok) {
           throw new Error("Failed to fetch projects");
         }
@@ -109,16 +110,14 @@ export default function SupervisorHomePage() {
   const updateProjectStatus = async (projectId, currentStatus) => {
     const newStatus = currentStatus === "taken" ? "available" : "taken";
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5001/api/projects/${projectId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ project_status: newStatus }),
-        }
-      );
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/projects/${projectId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ project_status: newStatus }),
+      });
       if (!response.ok) {
         throw new Error("Failed to update project status");
       }
