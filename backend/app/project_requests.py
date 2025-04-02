@@ -17,14 +17,15 @@ def create_request():
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
 
-    return make_request(data["student_id"], data["supervisor_id"], data["project_id"])
+    return make_request(data["student_id"], data["supervisor_id"], data["project_id"], data.get("student_request_text", "the student has not added a message"))
 
 
 @project_requests_bp.route('/requests/<int:student_id>/<int:project_id>', methods=['POST'])
 def request_project(student_id, project_id):
-    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id)
+    data = request.get_json()
+    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id, data.get("student_request_text", "the student has not added a message"))
 
-def make_request(student_id, supervisor_id, project_id):
+def make_request(student_id, supervisor_id, project_id, student_request_text = ""):
 
     # Verify that the student, supervisor, and project exist
     student = Student.query.get(student_id)
@@ -55,13 +56,14 @@ def make_request(student_id, supervisor_id, project_id):
     try:
         db.session.execute(
             text("""
-            INSERT INTO requests (student_id, supervisor_id, project_id, status)
-            VALUES (:student_id, :supervisor_id, :project_id, 'pending')
+            INSERT INTO requests (student_id, supervisor_id, project_id, status, student_request_text)
+            VALUES (:student_id, :supervisor_id, :project_id, 'pending', :student_request_text)
             """),
             {
                 "student_id": student_id,
                 "supervisor_id": supervisor_id,
-                "project_id": project_id
+                "project_id": project_id,
+                "student_request_text": student_request_text
             }
         )
         db.session.commit()
