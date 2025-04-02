@@ -2,8 +2,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
-from vector_db import query_vectors, upsert_project_data
-from models import Project, db
+from app.vector_db import query_vectors, upsert_project_data
+from app.models import Project, db
 
 project_bp = Blueprint('project', __name__)
 
