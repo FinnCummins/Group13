@@ -16,24 +16,17 @@ export default function SupervisorRequestsPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
-<<<<<<< HEAD
-    async function fetchRequestsAndDetails() {
-=======
     const fetchProjectRequests = async () => {
->>>>>>> main
       try {
         const supervisorId = localStorage.getItem("userId");
         if (!supervisorId) {
           setError("No supervisor ID found in localStorage.");
           return;
         }
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
         const response = await fetch(
-<<<<<<< HEAD
-          `http://127.0.0.1:5001/api/requests?${supervisor_id}`
-=======
           `${apiUrl}/api/project-requests?supervisor_id=${supervisorId}`
->>>>>>> main
         );
 
         if (!response.ok) {
@@ -72,7 +65,7 @@ export default function SupervisorRequestsPage() {
       }
     };
 
-    fetchRequestsAndDetails();
+    fetchProjectRequests();
   }, []);
 
   useEffect(() => {
@@ -118,13 +111,9 @@ export default function SupervisorRequestsPage() {
 
   const updateRequestStatus = async (requestId, newStatus) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(
-<<<<<<< HEAD
-        `http://127.0.0.1:5001/api/requests/${requestId}`,
-=======
         `${apiUrl}/api/project-requests/${requestId}`,
->>>>>>> main
         {
           method: "PUT",
           headers: {
