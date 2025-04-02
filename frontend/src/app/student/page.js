@@ -72,8 +72,8 @@ export default function StudentHomePage() {
     }
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5001/api/requests/${studentId}/${selectedProject.id}`,
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/requests/${studentId}/${selectedProject.id}`,
         {
           method: "POST",
         }

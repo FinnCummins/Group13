@@ -19,7 +19,8 @@ export default function ProposalStatus() {
 
     async function fetchRequests() {
       try {
-        const response = await fetch(`http://127.0.0.1:5001/api/student_requests/${studentId}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+        const response = await fetch(`${apiUrl}/api/student_requests/${studentId}`);
         if (!response.ok) {
           throw new Error("Failed to fetch requests");
         }
@@ -32,6 +33,31 @@ export default function ProposalStatus() {
 
     fetchRequests();
   }, []);
+
+  const handleDeleteRequest = async (requestId) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message); // Show success message
+
+      // Remove the deleted request from the UI
+      setRequests((prevRequests) =>
+        prevRequests.filter((request) => request.request_id !== requestId)
+      );
+    } catch (err) {
+      alert(err.message || "An error occurred while deleting the request.");
+    }
+  };
 
   if (!isClient) {
     return <div>Loading...</div>;
@@ -84,6 +110,12 @@ export default function ProposalStatus() {
                       >
                         {request.status}
                       </span>
+                      <button
+                        onClick={() => handleDeleteRequest(request.request_id)}
+                        className="bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                      >
+                        Delete Request
+                      </button>
                     </div>
                     </div>
                   </div>
