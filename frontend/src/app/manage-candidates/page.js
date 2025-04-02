@@ -24,7 +24,7 @@ export default function SupervisorRequestsPage() {
           return;
         }
         const response = await fetch(
-          `http://127.0.0.1:5001/api/requests?supervisor_id=11`
+          `http://127.0.0.1:5001/api/requests?${supervisor_id}`
         );
 
         if (!response.ok) {
