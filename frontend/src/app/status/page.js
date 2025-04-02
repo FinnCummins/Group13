@@ -118,6 +118,11 @@ export default function ProposalStatus() {
                       </button>
                     </div>
                     </div>
+                    {request.supervisor_response_text && (
+                      <p className="mt-4 text-[var(--text)]">
+                        <strong>Supervisor's Message:</strong> {request.supervisor_response_text}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
