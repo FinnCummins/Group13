@@ -43,15 +43,15 @@ export default function Signup() {
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
-  const handleSignup = async (url) => {
+  const handleSignup = async (endpoint) => {
     setTouched({
       email: true,
       password: true,
     });
     setError("");
     try {
-      console.log("Sending request to: {url}");
-      const response = await fetch(url, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,9 +80,9 @@ export default function Signup() {
 
       if (response.ok) {
         localStorage.setItem("userId", data.id);
-        if (url.includes("students")) {
+        if (endpoint.includes("students")) {
           router.push("/student");
-        } else if (url.includes("supervisors")) {
+        } else if (endpoint.includes("supervisors")) {
           router.push("/supervisor");
         }
       } else {
@@ -275,18 +275,14 @@ export default function Signup() {
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() =>
-                  handleSignup("http://127.0.0.1:5001/api/students")
-                }
+                onClick={() => handleSignup("/api/students")}
               >
                 Sign Up as Student
               </button>
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() =>
-                  handleSignup("http://127.0.0.1:5001/api/supervisors")
-                }
+                onClick={() => handleSignup("/api/supervisors")}
               >
                 Sign Up as Staff
               </button>

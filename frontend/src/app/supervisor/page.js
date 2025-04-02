@@ -19,7 +19,8 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const response = await fetch("http://127.0.0.1:5001/api/projects");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+        const response = await fetch(`${apiUrl}/api/projects`);
         if (!response.ok) {
           throw new Error("Failed to fetch projects");
         }
@@ -45,6 +46,12 @@ export default function SupervisorHomePage() {
   const handleCardClick = (projectId) => {
     localStorage.setItem("projectId", projectId);
     router.push(`/supervisorProjectID/${projectId}`);
+  };
+
+  const handleLinkClick = (projectId) => {
+    if (isClient) {
+      localStorage.setItem("projectId", projectId);
+    }
   };
 
   const handleEditSubmit = async (e) => {
@@ -103,16 +110,14 @@ export default function SupervisorHomePage() {
   const updateProjectStatus = async (projectId, currentStatus) => {
     const newStatus = currentStatus === "taken" ? "available" : "taken";
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5001/api/projects/${projectId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ project_status: newStatus }),
-        }
-      );
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const response = await fetch(`${apiUrl}/api/projects/${projectId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ project_status: newStatus }),
+      });
       if (!response.ok) {
         throw new Error("Failed to update project status");
       }
@@ -160,18 +165,26 @@ export default function SupervisorHomePage() {
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    onClick={() => handleCardClick(project.id)}
-                    className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)] cursor-pointer"
+                    className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)]"
                   >
-                    <div>
-                      <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
-                        {project.project_title}
-                      </h2>
-                    </div>
+                    {/* Just like the Student page: use <Link> for the main clickable area */}
+                    <Link
+                      href={`/supervisorProjectID/${project.id}`}
+                      passHref
+                      onClick={() => handleLinkClick(project.id)}
+                    >
+                      <div className="cursor-pointer flex-grow">
+                        <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
+                          {project.project_title}
+                        </h2>
+                      </div>
+                    </Link>
+
+                    {/* Actions: Edit, Mark as Taken, etc. */}
                     <div className="flex items-center space-x-2 whitespace-nowrap">
                       <button
                         onClick={(e) => {
-                          e.stopPropagation();
+                          e.stopPropagation(); // prevent Link navigation
                           openEditModal(project);
                         }}
                         className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -182,7 +195,7 @@ export default function SupervisorHomePage() {
                       {project.project_status === "taken" ? (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
+                            e.stopPropagation(); // prevent Link navigation
                             updateProjectStatus(
                               project.id,
                               project.project_status
@@ -195,7 +208,7 @@ export default function SupervisorHomePage() {
                       ) : (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
+                            e.stopPropagation(); // prevent Link navigation
                             updateProjectStatus(
                               project.id,
                               project.project_status
@@ -231,10 +244,10 @@ export default function SupervisorHomePage() {
                   type="text"
                   value={selectedProject.project_title}
                   onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
+                    setSelectedProject((prev) => ({
+                      ...prev,
                       project_title: e.target.value,
-                    })
+                    }))
                   }
                   className="w-full p-2 border border-gray-300 rounded"
                 />
@@ -250,10 +263,10 @@ export default function SupervisorHomePage() {
                   id="projectDescription"
                   value={selectedProject.project_description}
                   onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
+                    setSelectedProject((prev) => ({
+                      ...prev,
                       project_description: e.target.value,
-                    })
+                    }))
                   }
                   className="w-full p-2 border border-gray-300 rounded"
                 />
@@ -270,12 +283,12 @@ export default function SupervisorHomePage() {
                   type="text"
                   value={selectedProject.keywords.join(", ")}
                   onChange={(e) =>
-                    setSelectedProject({
-                      ...selectedProject,
+                    setSelectedProject((prev) => ({
+                      ...prev,
                       keywords: e.target.value
                         .split(",")
                         .map((keyword) => keyword.trim()),
-                    })
+                    }))
                   }
                   className="w-full p-2 border border-gray-300 rounded"
                 />

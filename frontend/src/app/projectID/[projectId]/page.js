@@ -14,7 +14,8 @@ export default function ProjectDetails() {
     if (projectId) {
       async function fetchProject() {
         try {
-          const response = await fetch(`http://127.0.0.1:5001/api/projects/${projectId}`);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+          const response = await fetch(`${apiUrl}/api/projects/${projectId}`);
           if (!response.ok) {
             throw new Error('Failed to fetch project');
           }

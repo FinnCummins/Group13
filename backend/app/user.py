@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
-from models import Student, db, Supervisor
+from app.models import Student, db, Supervisor
 
 user_bp = Blueprint('user', __name__)
 
