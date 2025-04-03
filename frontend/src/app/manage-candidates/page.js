@@ -14,6 +14,9 @@ export default function SupervisorRequestsPage() {
   const [sortDirection, setSortDirection] = useState("desc");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showResponseModal, setShowResponseModal] = useState(false);
+  const [responseStatus, setResponseStatus] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
 
   useEffect(() => {
     const fetchProjectRequests = async () => {
@@ -26,7 +29,7 @@ export default function SupervisorRequestsPage() {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
         const response = await fetch(
-          `${apiUrl}/api/project-requests?supervisor_id=${supervisorId}`
+          `${apiUrl}/api/requests?supervisor_id=${supervisorId}`
         );
 
         if (!response.ok) {
@@ -54,6 +57,7 @@ export default function SupervisorRequestsPage() {
               keywords: project.keywords,
               student_name: `${student.first_name} ${student.last_name}`.trim(),
               student_email: student.email,
+              supervisor_message: req.supervisor_message || "",
             };
           })
         );
@@ -119,7 +123,10 @@ export default function SupervisorRequestsPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({
+            status: newStatus,
+            supervisor_message: responseMessage,
+          }),
         }
       );
 
@@ -129,9 +136,18 @@ export default function SupervisorRequestsPage() {
 
       setProjectRequests((prevRequests) =>
         prevRequests.map((request) =>
-          request.id === requestId ? { ...request, status: newStatus } : request
+          request.id === requestId
+            ? {
+                ...request,
+                status: newStatus,
+                supervisor_message: responseMessage,
+              }
+            : request
         )
       );
+      setShowResponseModal(false);
+      setResponseMessage("");
+      setResponseStatus("");
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -141,6 +157,11 @@ export default function SupervisorRequestsPage() {
   const openDetailsModal = (request) => {
     setSelectedRequest(request);
     setShowDetailsModal(true);
+  };
+  const openResponseModal = (request, status) => {
+    setSelectedRequest(request);
+    setResponseStatus(status);
+    setShowResponseModal(true);
   };
 
   const toggleSortDirection = () => {
@@ -283,6 +304,63 @@ export default function SupervisorRequestsPage() {
           </div>
         </section>
       </main>
+      {showResponseModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-2xl font-bold">
+                {responseStatus === "accepted" ? "Accept" : "Reject"} Project
+                Request
+              </h3>
+              <button
+                onClick={() => setShowResponseModal(false)}
+                className="text-gray-500 hover:text-gray-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="responseMessage"
+                className="block text-sm font-bold mb-2"
+              >
+                Optional Message
+              </label>
+              <textarea
+                id="responseMessage"
+                value={responseMessage}
+                onChange={(e) => setResponseMessage(e.target.value)}
+                placeholder={
+                  responseStatus === "accepted"
+                    ? "Add a message for the student..."
+                    : "Add a message for the student..."
+                }
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-32"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowResponseModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  updateRequestStatus(selectedRequest.id, responseStatus)
+                }
+                className={`${
+                  responseStatus === "accepted" ? "bg-green-500" : "bg-red-500"
+                } text-white px-4 py-2 rounded`}
+              >
+                {responseStatus === "accepted" ? "Accept" : "Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showDetailsModal && selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -296,24 +374,6 @@ export default function SupervisorRequestsPage() {
                 ✕
               </button>
             </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() =>
-                  updateRequestStatus(selectedRequest.id, "accepted")
-                }
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() =>
-                  updateRequestStatus(selectedRequest.id, "rejected")
-                }
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Reject
-              </button>
-            </div>
 
             <div className="mb-4">
               <span
@@ -324,6 +384,29 @@ export default function SupervisorRequestsPage() {
                 {selectedRequest.status}
               </span>
             </div>
+
+            {selectedRequest.status === "pending" && (
+              <div className="flex justify-end gap-3 mb-6">
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    openResponseModal(selectedRequest, "accepted");
+                  }}
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    openResponseModal(selectedRequest, "rejected");
+                  }}
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  Reject
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
@@ -383,22 +466,58 @@ export default function SupervisorRequestsPage() {
               </div>
             </div>
 
-            {selectedRequest.additional_notes && (
+            {selectedRequest.student_message && (
               <div className="mb-6">
-                <h4 className="text-lg font-semibold mb-2">Additional Notes</h4>
+                <h4 className="text-lg font-semibold mb-2">Student Message</h4>
                 <div className="bg-gray-50 p-4 rounded-md">
                   <p className="whitespace-pre-line">
-                    {selectedRequest.additional_notes}
+                    {selectedRequest.student_message}
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="flex justify-end gap-3 mt-6"></div>
+            {selectedRequest.supervisor_message && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold mb-2">Your Response</h4>
+                <div className="bg-gray-50 p-4 rounded-md">
+                  <p className="whitespace-pre-line">
+                    {selectedRequest.supervisor_message}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {selectedRequest.status !== "pending" &&
+              !selectedRequest.supervisor_message && (
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold mb-2">
+                    Add Response Message
+                  </h4>
+                  <div className="flex gap-2">
+                    <textarea
+                      value={responseMessage}
+                      onChange={(e) => setResponseMessage(e.target.value)}
+                      placeholder="Add a message to the student..."
+                      className="flex-1 p-2 border rounded-md min-h-24"
+                    />
+                    <button
+                      onClick={() =>
+                        updateRequestStatus(
+                          selectedRequest.id,
+                          selectedRequest.status
+                        )
+                      }
+                      className="bg-blue-500 text-white px-4 py-2 rounded self-end"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
       )}
-
       <footer className="text-center py-6 border-t border-[var(--foreground)]">
         <p>2025 Final Year Project Finder</p>
       </footer>
