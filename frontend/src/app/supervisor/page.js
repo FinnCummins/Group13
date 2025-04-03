@@ -7,10 +7,15 @@ import Link from "next/link";
 
 export default function SupervisorHomePage() {
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("title");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
     setIsClient(true);
@@ -19,19 +24,60 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
         const response = await fetch(`${apiUrl}/api/projects`);
         if (!response.ok) {
           throw new Error("Failed to fetch projects");
         }
         const data = await response.json();
         setProjects(data || []);
+        setFilteredProjects(data || []);
       } catch (err) {
         setError(err.message);
       }
     }
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    let result = [...projects];
+
+    if (statusFilter !== "all") {
+      result = result.filter(
+        (project) => project.project_status.toLowerCase() === statusFilter
+      );
+    }
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (project) =>
+          project.project_title.toLowerCase().includes(query) ||
+          (project.project_description &&
+            project.project_description.toLowerCase().includes(query)) ||
+          (project.keywords &&
+            project.keywords.some((keyword) =>
+              keyword.toLowerCase().includes(query)
+            ))
+      );
+    }
+
+    result.sort((a, b) => {
+      if (sortBy === "title") {
+        return sortDirection === "asc"
+          ? a.project_title.localeCompare(b.project_title)
+          : b.project_title.localeCompare(a.project_title);
+      } else if (sortBy === "status") {
+        return sortDirection === "asc"
+          ? a.project_status.localeCompare(b.project_status)
+          : b.project_status.localeCompare(a.project_status);
+      }
+      return 0;
+    });
+
+    setFilteredProjects(result);
+  }, [projects, statusFilter, searchQuery, sortBy, sortDirection]);
 
   const openEditModal = (project) => {
     setSelectedProject(project);
@@ -52,6 +98,10 @@ export default function SupervisorHomePage() {
     if (isClient) {
       localStorage.setItem("projectId", projectId);
     }
+  };
+
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   const handleEditSubmit = async (e) => {
@@ -108,9 +158,10 @@ export default function SupervisorHomePage() {
   }
 
   const updateProjectStatus = async (projectId, currentStatus) => {
-    const newStatus = currentStatus === "taken" ? "available" : "taken";
+    const newStatus =
+      currentStatus.toLowerCase() === "taken" ? "available" : "taken";
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(`${apiUrl}/api/projects/${projectId}`, {
         method: "PUT",
         headers: {
@@ -157,17 +208,64 @@ export default function SupervisorHomePage() {
                 Error loading projects: {error}
               </p>
             )}
+            <div className="bg-[var(--background)] p-4 rounded-lg shadow-lg mb-6 flex flex-wrap gap-4 items-center">
+              <div className="flex items-center">
+                <span className="text-[var(--foreground)] mr-2">🔍</span>
+                <select
+                  className="p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Projects</option>
+                  <option value="available">Available</option>
+                  <option value="taken">Taken</option>
+                </select>
+              </div>
 
-            {projects.length === 0 ? (
+              <div className="flex items-center flex-1">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Search by title, description or keywords..."
+                    className="w-full p-2 pl-10 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <span className="absolute left-3 top-2.5 text-gray-400">
+                    🔎
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--text)]">Sort by:</span>
+                <select
+                  className="p-2 border rounded-md bg-white text-black focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="title">Project Title</option>
+                  <option value="status">Status</option>
+                </select>
+
+                <button
+                  onClick={toggleSortDirection}
+                  className="p-2 border rounded-md bg-white text-black focus:outline-none hover:bg-gray-100"
+                >
+                  {sortDirection === "desc" ? "↓" : "↑"}
+                </button>
+              </div>
+            </div>
+
+            {filteredProjects.length === 0 ? (
               <p className="text-center">No projects available</p>
             ) : (
               <div className="space-y-8">
-                {projects.map((project) => (
+                {filteredProjects.map((project) => (
                   <div
                     key={project.id}
                     className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)]"
                   >
-                    {/* Just like the Student page: use <Link> for the main clickable area */}
                     <Link
                       href={`/supervisorProjectID/${project.id}`}
                       passHref
@@ -180,11 +278,10 @@ export default function SupervisorHomePage() {
                       </div>
                     </Link>
 
-                    {/* Actions: Edit, Mark as Taken, etc. */}
                     <div className="flex items-center space-x-2 whitespace-nowrap">
                       <button
                         onClick={(e) => {
-                          e.stopPropagation(); // prevent Link navigation
+                          e.stopPropagation();
                           openEditModal(project);
                         }}
                         className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -192,10 +289,10 @@ export default function SupervisorHomePage() {
                         Edit
                       </button>
 
-                      {project.project_status === "taken" ? (
+                      {project.project_status.toLowerCase() === "taken" ? (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // prevent Link navigation
+                            e.stopPropagation();
                             updateProjectStatus(
                               project.id,
                               project.project_status
@@ -203,12 +300,12 @@ export default function SupervisorHomePage() {
                           }}
                           className="bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         >
-                          Taken
+                          Mark as Available
                         </button>
                       ) : (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // prevent Link navigation
+                            e.stopPropagation();
                             updateProjectStatus(
                               project.id,
                               project.project_status
