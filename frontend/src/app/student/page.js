@@ -70,21 +70,28 @@ export default function StudentHomePage() {
       alert("Student ID not found. Please log in.");
       return;
     }
-
+  
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(
-        `http://127.0.0.1:5001/api/requests/${studentId}/${selectedProject.id}`,
+        `${apiUrl}/api/requests/${studentId}/${selectedProject.id}`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            student_request_text: message || "the student has not added a message", // Include the optional message
+          }),
         }
       );
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         alert(`Error: ${errorData.error}`);
         return;
       }
-
+  
       const data = await response.json();
       alert(data.message); // Show success message
       closeRequestModal();
