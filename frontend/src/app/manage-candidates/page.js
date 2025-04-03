@@ -29,8 +29,8 @@ export default function SupervisorRequestsPage() {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
         const response = await fetch(
-          //`${apiUrl}/api/requests?supervisor_id=${supervisorId}`
           `${apiUrl}/api/supervisor_requests/${supervisorId}`
+          // `${apiUrl}/api/supervisor_requests/3`
         );
 
         if (!response.ok) {
@@ -39,26 +39,32 @@ export default function SupervisorRequestsPage() {
 
         const requestsData = await response.json();
 
+        // Fetch additional project details if needed
         const requestsWithDetails = await Promise.all(
           requestsData.map(async (req) => {
+            // Fetch more detailed project info if needed
             const projRes = await fetch(
-              `http://127.0.0.1:5001/api/projects/${req.project_id}`
+              `${apiUrl}/api/projects/${req.project.id}`
             );
-            const project = await projRes.json();
+            const projectDetails = await projRes.json();
 
-            const studentRes = await fetch(
-              `http://127.0.0.1:5001/api/students/${req.student_id}`
-            );
-            const student = await studentRes.json();
-
+            // Use the combined data from both APIs
             return {
-              ...req,
-              project_title: project.project_title,
-              project_description: project.project_description,
-              keywords: project.keywords,
-              student_name: `${student.first_name} ${student.last_name}`.trim(),
-              student_email: student.email,
-              supervisor_message: req.supervisor_message || "",
+              id: req.request_id,
+              project_id: req.project.id,
+              status: req.status,
+              student_id: req.student.id,
+              request_date: req.request_date || new Date().toISOString(),
+              project_title: req.project.project_title,
+              // Use detailed project info for these fields
+              project_description:
+                projectDetails.project_description || "No description provided",
+              keywords: projectDetails.keywords || [],
+              student_name:
+                `${req.student.first_name} ${req.student.last_name}`.trim(),
+              student_email: req.student.email,
+              student_message: req.student_request_text || "",
+              supervisor_message: req.supervisor_response_text || "",
             };
           })
         );
@@ -67,6 +73,7 @@ export default function SupervisorRequestsPage() {
         setFilteredRequests(requestsWithDetails);
       } catch (err) {
         setError(err.message);
+        console.error("Error fetching requests:", err);
       }
     };
 
