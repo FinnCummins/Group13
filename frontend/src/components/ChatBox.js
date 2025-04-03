@@ -26,7 +26,7 @@ export default function ChatBox() {
 
   const simulateLLMResponse = async (userInput, userId) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(`${apiUrl}/api/llm`, {
         method: "POST",
         headers: {
@@ -87,9 +87,9 @@ export default function ChatBox() {
           style={{
             position: "fixed",
             top: "100px",
-            left: "0",
-            width: "100%",
-            height: "calc(100% - 100px)",
+            right: "20px",
+            width: "40%",
+            height: "calc(100% - 120px)",
             backgroundColor: "var(--background)",
             border: "1px solid var(--text)",
             borderRadius: "8px",
@@ -133,8 +133,6 @@ export default function ChatBox() {
               padding: "10px",
               overflowY: "auto",
               backgroundColor: "var(--background)",
-              display: "flex",
-              justifyContent: "center",
             }}
           >
             <div style={{ width: "100%", maxWidth: "600px" }}>
