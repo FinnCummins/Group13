@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 export default function AddProjectPage() {
   const [isClient, setIsClient] = useState(false);
+  const [supervisorId, setSupervisorId] = useState(null);
   const [projectTitle, setProjectTitle] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [keywords, setKeywords] = useState("");
@@ -20,6 +21,17 @@ export default function AddProjectPage() {
 
   useEffect(() => {
     setIsClient(true);
+
+    // Get the supervisor ID from localStorage using the correct key
+    const storedSupervisorId = localStorage.getItem("supervisorId");
+    const userType = localStorage.getItem("userType");
+
+    if (!storedSupervisorId) {
+      setError("Supervisor ID not found. Please log in.");
+      return;
+    }
+
+    setSupervisorId(storedSupervisorId);
   }, []);
 
   if (!isClient) {
@@ -52,12 +64,12 @@ export default function AddProjectPage() {
     const projectData = {
       project_title: projectTitle,
       project_description: projectDescription,
-      supervisor_id: 1,
+      supervisor_id: supervisorId,
       keywords: keywordsArray,
     };
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(`${apiUrl}/api/projects`, {
         method: "POST",
         headers: {
@@ -73,6 +85,9 @@ export default function AddProjectPage() {
       }
 
       setSuccess("Project created successfully!");
+      setTimeout(() => {
+        router.push("/supervisor");
+      }, 1500);
 
       setProjectTitle("");
       setProjectDescription("");
