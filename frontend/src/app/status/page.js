@@ -16,7 +16,9 @@ export default function ProposalStatus() {
 
   useEffect(() => {
     setIsClient(true);
-    const studentId = localStorage.getItem("userId");
+    const studentId = localStorage.getItem("studentId");
+    const userType = localStorage.getItem("userType");
+
     if (!studentId) {
       setError("Student ID not found. Please log in.");
       return;

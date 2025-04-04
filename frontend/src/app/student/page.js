@@ -22,12 +22,13 @@ export default function StudentHomePage() {
 
   useEffect(() => {
     setIsClient(true);
-    const storedStudentId = localStorage.getItem("userId");
-    setStudentId(storedStudentId);
-  }, []);
+    const storedStudentId = localStorage.getItem("studentId");
 
-  useEffect(() => {
-    setIsClient(true);
+    if (storedStudentId) {
+      setStudentId(storedStudentId);
+    } else {
+      setError("Student ID not found. Please log in.");
+    }
   }, []);
 
   useEffect(() => {

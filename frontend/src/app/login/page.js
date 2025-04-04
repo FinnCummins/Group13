@@ -31,7 +31,7 @@ export default function Login() {
     });
     setError("");
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
         headers: {
@@ -43,7 +43,17 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("userId", data.id);
+        localStorage.setItem(
+          "userType",
+          endpoint.includes("students") ? "student" : "supervisor"
+        );
+
+        if (endpoint.includes("students")) {
+          localStorage.setItem("studentId", data.id);
+        } else {
+          localStorage.setItem("supervisorId", data.id);
+        }
+
         if (endpoint.includes("students")) {
           router.push("/student");
         } else if (endpoint.includes("supervisors")) {
