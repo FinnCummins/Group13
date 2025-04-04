@@ -199,7 +199,7 @@ export default function ProposalStatus() {
                       <div className="flex items-center space-x-2 whitespace-nowrap">
                         <span
                           className={`px-3 py-1 rounded font-bold ${
-                            request.status.toLowerCase() === "approved"
+                            request.status.toLowerCase() === "accepted"
                               ? "bg-green-500 text-white"
                               : request.status.toLowerCase() === "rejected"
                               ? "bg-red-500 text-white"
