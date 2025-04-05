@@ -116,19 +116,16 @@ export default function SupervisorRequestsPage() {
   const updateRequestStatus = async (requestId, newStatus) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
-      const response = await fetch(
-        `${apiUrl}/api/project-requests/${requestId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: newStatus,
-            supervisor_message: responseMessage,
-          }),
-        }
-      );
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          supervisor_response_text: responseMessage,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to update request status to ${newStatus}`);
