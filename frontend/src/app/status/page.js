@@ -45,6 +45,42 @@ export default function ProposalStatus() {
     fetchRequests();
   }, []);
 
+  const handleChooseFinalProject = async (request) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
+      const response = await fetch(`${apiUrl}/api/final_project`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          student_id: localStorage.getItem("studentId"),
+          project_id: request.project.id,
+          supervisor_id: request.supervisor.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message);
+
+      setRequests((prevRequests) =>
+        prevRequests.map((r) =>
+          r.request_id === request.request_id
+            ? { ...r, status: "Finalized" }
+            : r
+        )
+      );
+    } catch (err) {
+      alert(err.message || "An error occurred while choosing the final project.");
+    }
+  };
+
   useEffect(() => {
     let result = [...requests];
 
@@ -143,7 +179,7 @@ export default function ProposalStatus() {
                 >
                   <option value="all">All Requests</option>
                   <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
+                  <option value="accepted">Approved</option>
                   <option value="rejected">Rejected</option>
                 </select>
               </div>
@@ -208,6 +244,14 @@ export default function ProposalStatus() {
                         >
                           {request.status}
                         </span>
+                        {request.status.toLowerCase() === "accepted" && (
+                          <button
+                            onClick={() => handleChooseFinalProject(request)}
+                            className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                          >
+                            Choose as Final Project
+                          </button>
+                        )}
                         <button
                           onClick={() =>
                             handleDeleteRequest(request.request_id)
