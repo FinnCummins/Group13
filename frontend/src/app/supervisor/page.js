@@ -24,9 +24,16 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
+        const supervisorId = localStorage.getItem("userId");
+        if (!supervisorId) {
+          setError("No supervisor ID found in localStorage.");
+          return;
+        }
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
-        const response = await fetch(`${apiUrl}/api/projects`);
+        const response = await fetch(
+          `${apiUrl}/api/projects?supervisor_ids=${supervisorId}`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch projects");
         }
