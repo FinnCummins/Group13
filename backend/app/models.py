@@ -55,3 +55,16 @@ class ChatbotHistory(db.Model):
     context = db.Column(db.Text)
 
     user = db.relationship('Student', backref=db.backref('chatbot_history', lazy=True, cascade="all, delete-orphan"))
+
+class FinalProject(db.Model):
+    __tablename__ = 'final_project'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete="CASCADE"), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete="CASCADE"), nullable=False)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('supervisors.id', ondelete="CASCADE"), nullable=False)
+    locked_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship('Student', backref=db.backref('final_project', lazy=True))
+    project = db.relationship('Project', backref=db.backref('final_project', lazy=True))
+    supervisor = db.relationship('Supervisor', backref=db.backref('final_project', lazy=True))

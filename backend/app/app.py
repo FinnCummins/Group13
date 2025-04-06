@@ -41,6 +41,7 @@ from app.project import project_bp
 from app.llm import llm_bp
 from app.vector_db import vector_bp
 from app.project_requests import project_requests_bp
+from app.final_project import final_project_bp
 
 # Register blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
@@ -48,6 +49,7 @@ app.register_blueprint(project_bp, url_prefix='/api')
 app.register_blueprint(llm_bp, url_prefix='/api')
 app.register_blueprint(vector_bp, url_prefix='/api')
 app.register_blueprint(project_requests_bp, url_prefix='/api')
+app.register_blueprint(final_project_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -49,3 +49,14 @@ CREATE TABLE IF NOT EXISTS requests (
     FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS final_project (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL,
+    project_id INT NOT NULL,
+    supervisor_id INT NOT NULL,
+    locked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (supervisor_id) REFERENCES supervisors(id) ON DELETE CASCADE
+);
