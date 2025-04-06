@@ -135,7 +135,7 @@ export default function SupervisorRequestsPage() {
         },
         body: JSON.stringify({
           status: newStatus,
-          supervisor_message: responseMessage,
+          supervisor_response_text: responseMessage,
         }),
       });
 
