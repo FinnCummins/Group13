@@ -33,7 +33,7 @@ export default function AboutHomePage() {
         </section>
         <section>
           <h2>Get in Touch</h2>
-          <p>We’re here to answer any questions and assist with your project needs. Reach out to us at [Contact Information], or follow us on <strong>Github/discord</strong> to stay updated on our latest developments.</p>
+          <p>We’re here to answer any questions and assist with your project needs. Reach out to us on Discord, or follow us on <strong>Github</strong> to stay updated on our latest developments.</p>
         </section>
       </main>
     </>
