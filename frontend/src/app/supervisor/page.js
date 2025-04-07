@@ -24,7 +24,7 @@ export default function SupervisorHomePage() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const supervisorId = localStorage.getItem("userId");
+        const supervisorId = localStorage.getItem("supervisorId");
         if (!supervisorId) {
           setError("No supervisor ID found in localStorage.");
           return;
