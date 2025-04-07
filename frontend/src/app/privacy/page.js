@@ -51,7 +51,7 @@ export default function PrivacyHomePage() {
         </section>
         <section>
           <h2>Contact Information</h2>
-          <p>We welcome any queries, comments or requests you may have regarding this Privacy Policy. Please do not hesitate to contact us at [Your Contact Information].</p>
+          <p>We welcome any queries, comments or requests you may have regarding this Privacy Policy. Please do not hesitate to contact us on Discord.</p>
         </section>
       </main>
     </>
