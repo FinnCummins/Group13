@@ -116,8 +116,9 @@ export default function SupervisorHomePage() {
     const { project_title, project_description, keywords } = selectedProject;
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001";
       const response = await fetch(
-        `http://127.0.0.1:5001/api/projects/${selectedProject.id}`,
+        `${apiUrl}/api/projects/${selectedProject.id}`,
         {
           method: "PUT",
           headers: {
