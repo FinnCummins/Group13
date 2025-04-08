@@ -51,7 +51,10 @@ def make_request(student_id, project_id, student_request_text=""):
         return jsonify({"error": "Supervisor not found"}), 404
 
     # Ensure the request does not already exist
-    existing_request = db.session.query(Project).filter_by(student_id=student_id, project_id=project_id).first()
+    existing_request = db.session.execute(
+        text("SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id"),
+        {"student_id": student_id, "project_id": project_id}
+    ).first()
     if existing_request:
         return jsonify({"error": "Request already exists for this project"}), 400
 
