@@ -23,34 +23,34 @@ def create_request():
 
 @project_requests_bp.route('/requests/<int:student_id>/<int:project_id>', methods=['POST'])
 def request_project(student_id, project_id):
-    student_request_text = "the student has not added a message"
     if request.is_json:
         data = request.get_json()
         student_request_text = data.get("student_request_text", "the student has not added a message")
+    else:
+        student_request_text = "the student has not added a message"
 
-    return make_request(student_id, Project.query.get(project_id).supervisor_id, project_id, student_request_text)
+    return make_request(student_id, project_id, student_request_text)
 
-
-def make_request(student_id, supervisor_id, project_id, student_request_text=""):
-    # Verify that the student, supervisor, and project exist
+def make_request(student_id, project_id, student_request_text=""):
+    # Verify that the student and project exist
     student = Student.query.get(student_id)
     if not student:
         return jsonify({"error": "Student not found"}), 404
-
-    supervisor = Supervisor.query.get(supervisor_id)
-    if not supervisor:
-        return jsonify({"error": "Supervisor not found"}), 404
 
     project = Project.query.get(project_id)
     if not project:
         return jsonify({"error": "Project not found"}), 404
 
-    if project.supervisor_id != supervisor.id:
-        return jsonify({"error": "Supervisor does not match project's supervisor"}), 400
-
+    # Check if project is already taken
     if project.project_status == "taken":
         return jsonify({"error": "Project already taken"}), 400
 
+    supervisor_id = project.supervisor_id
+    supervisor = Supervisor.query.get(supervisor_id)
+    if not supervisor:
+        return jsonify({"error": "Supervisor not found"}), 404
+
+    # Ensure the request does not already exist
     existing_request = db.session.execute(
         text("SELECT * FROM requests WHERE student_id = :student_id AND project_id = :project_id"),
         {"student_id": student_id, "project_id": project_id}
