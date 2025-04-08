@@ -6,7 +6,37 @@ BASE_URL = "http://127.0.0.1:5001/api/projects"
 # Sample test data
 TEST_USER = {"email": "testuser@example.com", "password": "TestPass123"}
 TEST_PROJECT = {"title": "AI Chatbot", "category": "Machine Learning", "difficulty": "Intermediate"}
+TEST_VECTOR = {
+    "vector_id": "test123",
+    "vector": [0.1, 0.2, 0.3] * 512,  # Assuming the expected dimension is 1536
+    "metadata": {"info": "Test vector"}
+}
 
+def test_upsert_vector():
+    """Test upserting a vector to the database."""
+    response = requests.post(f"{BASE_URL}/upsert", json=TEST_VECTOR)
+    assert response.status_code == 200
+    assert "Vector upserted successfully" in response.json().get("message", "")
+    
+
+def test_query_vector():
+    """Test querying vectors from the database."""
+    query_data = {
+        "text": "Sample query text",
+        "namespace": "projects"
+    }
+    response = requests.post(f"{BASE_URL}/query", json=query_data)
+    assert response.status_code == 200
+    assert isinstance(response.json().get("matches"), list)
+    
+
+def test_delete_vector():
+    """Test deleting a vector from the database."""
+    delete_data = {"vector_ids": ["test123"]}
+    response = requests.delete(f"{BASE_URL}/delete", json=delete_data)
+    assert response.status_code == 200
+    assert "Vectors deleted successfully" in response.json().get("message", "")
+    
 
 def test_api_health_check():
     response = requests.get(f"{BASE_URL}/health")
