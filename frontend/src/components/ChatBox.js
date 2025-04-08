@@ -7,7 +7,7 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEnd = useRef(null);
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("studentId");
 
   console.log("ChatBox rendered with userId:", userId);
 
