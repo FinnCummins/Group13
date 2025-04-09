@@ -237,7 +237,11 @@ export default function StudentHomePage() {
                     key={project.id}
                     className="bg-[var(--background)] p-6 rounded-lg shadow-lg flex justify-between items-center border border-[var(--foreground)]"
                   >
-                    <Link href={`/projectID/${project.id}`} passHref>
+                    <Link
+                      href={`/projectID/${project.id}`}
+                      passHref
+                      onClick={() => handleProjectClick(project.id)}
+                    >
                       <div className="cursor-pointer flex-grow">
                         <h2 className="text-2xl font-bold mb-2 text-[var(--text)]">
                           {project.project_title}
