@@ -24,7 +24,14 @@ enable students who share their research interests to find their projects more e
 As a supervisor you have the ability to easily upload project ideas and descriptions to our website. When
 you have agreed to accept a particular student, you can then toggle the tag of your project to "Taken" which will notify other students that this project is no longer available.
 
-# Set-Up Instructions
+# Set-Up Instructions - Option 1
+As an alternative to running the web application locally as outlined in Option 1 above, you can now
+access the live website at this url: https://www.thebestcomputerscienceproject.com
+
+It is now possible for any student or supervisor to access this website, sign up for an account and begin
+finding and selecting their desired projects as outlined in the initial vision for this project.
+
+# Set-Up Instructions - Option 2
 
 ## Step 1: Clone the repository
 Clone the public repository found at https://github.com/FinnCummins/Group13
@@ -67,9 +74,15 @@ The backend endpoints are accessible via http://localhost:5001
 
 # Backends
 
-## PostgreSQL Database
-The postgres database for our website is now running locally within a docker container on your computer. To view
+## Production Database - Supabase PostgreSQL Database
+We have moved our locally hosted PostgreSQL database to Supabase which can be accessed and viewed with this url: https://supabase.com/dashboard/project/vohaccbfmcpsptsomuqm
+All demonstrators for the Group Design Project module have been provided access to our production database for this project.
+
+## Local Development Database - PostgreSQL Database
+The postgres database for our website runs locally within a docker container on your computer. To view
 the contents of this postgres database please install pgadmin to view its contents.
 
 ## Pinecone Vector Database
 Click [here](https://app.pinecone.io/organizations/-N_KaXCftxjZei6q898g/projects/d239873b-ce31-43da-b3f3-497214979d0f/indexes/final-year-project/browser) to access the hosted vector database for this project
+
+
