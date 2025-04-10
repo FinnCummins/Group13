@@ -25,6 +25,13 @@ As a supervisor you have the ability to easily upload project ideas and descript
 you have agreed to accept a particular student, you can then toggle the tag of your project to "Taken" which will notify other students that this project is no longer available.
 
 # Set-Up Instructions - Option 1
+As an alternative to running the web application locally as outlined in Option 1 above, you can now
+access the live website at this url: https://www.thebestcomputerscienceproject.com
+
+It is now possible for any student or supervisor to access this website, sign up for an account and begin
+finding and selecting their desired projects as outlined in the initial vision for this project.
+
+# Set-Up Instructions - Option 2
 
 ## Step 1: Clone the repository
 Clone the public repository found at https://github.com/FinnCummins/Group13
@@ -64,13 +71,6 @@ page of our website. You can now navigate through our website, sign up for an ac
 try our website's built-in chatbot!
 
 The backend endpoints are accessible via http://localhost:5001
-
-# Set-Up Instructions - Option 2
-As an alternative to running the web application locally as outlined in Option 1 above, you can now
-access the live website at this url: https://www.thebestcomputerscienceproject.com
-
-It is now possible for any student or supervisor to access this website, sign up for an account and begin
-finding and selecting their desired projects as outlined in the initial vision for this project.
 
 # Backends
 
