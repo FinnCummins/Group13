@@ -51,5 +51,20 @@ app.register_blueprint(vector_bp, url_prefix='/api')
 app.register_blueprint(project_requests_bp, url_prefix='/api')
 app.register_blueprint(final_project_bp, url_prefix='/api')
 
+jwt = JWTManager(app)
+db = SQLAlchemy()
+def create_app(config_class=DevelopmentConfig):
+    try:
+        app = Flask(__name__)
+        app.config.from_object(config_class)
+        db.init_app(app)
+        jwt.init_app(app)
+        CORS(app)
+        return app
+    except Exception as e:
+        print(f"Failed to create app: {e}")
+        return None
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
